@@ -67,6 +67,7 @@ const state = {
   favoritesOnly: false,
   favorites: new Set(),
   cart: new Map(),
+  discountApplied: false,
   quickProduct: null,
   lastFocus: null,
   orderReceived: false
@@ -88,7 +89,26 @@ const checkoutForm = document.querySelector("#checkout-form");
 const checkoutLayout = document.querySelector("#checkout-content");
 const checkoutEmpty = document.querySelector("#checkout-empty");
 const checkoutSuccess = document.querySelector("#checkout-success");
+const discountWidget = document.querySelector("#discount-widget");
+const discountTab = document.querySelector("#discount-tab");
+const discountPanel = document.querySelector("#discount-panel");
+const discountForm = document.querySelector("#discount-form");
+const discountEmail = document.querySelector("#discount-email");
+const discountSignupState = document.querySelector("#discount-signup-state");
+const discountSuccessState = document.querySelector("#discount-success-state");
 let toastTimer;
+
+function cartSubtotal() {
+  return [...state.cart.values()].reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+}
+
+function cartDiscount(subtotal) {
+  return state.discountApplied ? Math.round(subtotal * 0.1) : 0;
+}
+
+function cartTotal(subtotal) {
+  return subtotal - cartDiscount(subtotal);
+}
 
 function renderProducts() {
   const visible = products.filter((product) => {
@@ -127,9 +147,9 @@ function renderProducts() {
 
 function updateHeader() {
   const quantity = [...state.cart.values()].reduce((sum, item) => sum + item.quantity, 0);
-  const subtotal = [...state.cart.values()].reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  const subtotal = cartSubtotal();
   document.querySelector("#cart-count").textContent = quantity;
-  document.querySelector("#header-total").textContent = formatPrice(subtotal);
+  document.querySelector("#header-total").textContent = formatPrice(cartTotal(subtotal));
   document.querySelector("#favorite-count").textContent = state.favorites.size;
   const favoriteToggle = document.querySelector("#favorites-toggle");
   favoriteToggle.setAttribute("aria-pressed", String(state.favoritesOnly));
@@ -141,6 +161,8 @@ function renderCart() {
   const items = [...state.cart.values()];
   const quantity = items.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  const discount = cartDiscount(subtotal);
+  const total = subtotal - discount;
   const achieved = subtotal >= 10000;
   const remaining = Math.max(0, 10000 - subtotal);
   document.querySelector("#drawer-count").textContent = `(${quantity} ${quantity === 1 ? "item" : "items"})`;
@@ -171,8 +193,10 @@ function renderCart() {
           </div><span class="row-price">${formatPrice(product.price * count)}</span></div>
         </div>
       </article>`).join("")}</div>`;
-  footer.innerHTML = `<div class="summary-row summary-total"><span>Cart total</span><strong>${formatPrice(subtotal)}</strong></div>
-    <button class="checkout-button" type="button" data-checkout><span>${icon.bag} Proceed to checkout</span><strong>${formatPrice(subtotal)}</strong></button>
+  footer.innerHTML = `<div class="summary-row"><span>Subtotal</span><strong>${formatPrice(subtotal)}</strong></div>
+    ${discount ? `<div class="summary-row discount-summary-row"><span>10% discount · WASL10</span><strong>−${formatPrice(discount)}</strong></div>` : ""}
+    <div class="summary-row summary-total"><span>Cart total</span><strong>${formatPrice(total)}</strong></div>
+    <button class="checkout-button" type="button" data-checkout><span>${icon.bag} Proceed to checkout</span><strong>${formatPrice(total)}</strong></button>
     <p class="payment-note">Demo checkout · No payment will be taken</p>`;
 }
 
@@ -185,7 +209,7 @@ function updateCart() {
 function renderCheckout() {
   const items = [...state.cart.values()];
   const quantity = items.reduce((sum, item) => sum + item.quantity, 0);
-  const subtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  const subtotal = cartSubtotal();
   document.querySelector("#checkout-item-count").textContent = `${quantity} ${quantity === 1 ? "item" : "items"}`;
   document.querySelector("#checkout-items").innerHTML = items.map(({ product, quantity: count }) => `
     <article class="checkout-item">
@@ -193,8 +217,7 @@ function renderCheckout() {
       <div class="checkout-item-info"><strong>${product.name}</strong><small>Qty ${count} · ${formatPrice(product.price)} each</small></div>
       <span class="checkout-item-price">${formatPrice(product.price * count)}</span>
     </article>`).join("");
-  document.querySelector("#checkout-subtotal").textContent = formatPrice(subtotal);
-  document.querySelector("#checkout-total").textContent = formatPrice(subtotal);
+  updateCheckoutTotals(subtotal);
 
   const showingSuccess = state.orderReceived;
   const showingEmpty = !items.length && !showingSuccess;
@@ -203,6 +226,31 @@ function renderCheckout() {
   checkoutLayout.hidden = showingSuccess || showingEmpty;
   checkoutForm.reset();
   clearCheckoutErrors();
+}
+
+function updateCheckoutTotals(subtotal = cartSubtotal()) {
+  const discount = cartDiscount(subtotal);
+  document.querySelector("#checkout-subtotal").textContent = formatPrice(subtotal);
+  document.querySelector("#checkout-discount-row").hidden = discount === 0;
+  document.querySelector("#checkout-discount").textContent = `−${formatPrice(discount)}`;
+  document.querySelector("#checkout-total").textContent = formatPrice(subtotal - discount);
+}
+
+function updateDiscountPanel() {
+  discountSignupState.hidden = state.discountApplied;
+  discountSuccessState.hidden = !state.discountApplied;
+  discountTab.setAttribute("aria-label", state.discountApplied ? "10 percent discount applied" : "Open optional 10 percent discount offer");
+  discountTab.classList.toggle("discount-applied", state.discountApplied);
+}
+
+function setDiscountPanelOpen(open, restoreFocus = false) {
+  discountPanel.hidden = !open;
+  discountTab.setAttribute("aria-expanded", String(open));
+  if (open && !state.discountApplied) {
+    window.setTimeout(() => discountEmail.focus(), 0);
+  } else if (!open && restoreFocus) {
+    discountTab.focus();
+  }
 }
 
 function setPageFromHash() {
@@ -435,6 +483,35 @@ document.querySelector("#drawer-footer").addEventListener("click", (event) => {
   if (!event.target.closest("[data-checkout]")) return;
   openCheckout();
 });
+discountTab.addEventListener("click", () => setDiscountPanelOpen(discountPanel.hidden));
+document.querySelector("#discount-close").addEventListener("click", () => setDiscountPanelOpen(false, true));
+discountForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const emailError = document.querySelector("#discount-email-error");
+  emailError.textContent = "";
+  discountEmail.removeAttribute("aria-invalid");
+  if (!discountEmail.value.trim() || !discountEmail.validity.valid) {
+    emailError.textContent = "Enter a valid email address to claim your discount.";
+    discountEmail.setAttribute("aria-invalid", "true");
+    discountEmail.focus();
+    announce("Enter a valid email address to claim your discount.");
+    return;
+  }
+
+  // Demo only: do not retain or transmit the email address.
+  state.discountApplied = true;
+  discountForm.reset();
+  updateDiscountPanel();
+  discountSuccessState.focus();
+  updateHeader();
+  renderCart();
+  if (location.hash === "#checkout") updateCheckoutTotals();
+  announce("Your 10 percent discount is active. Code WASL10 has been applied.");
+});
+discountForm.addEventListener("input", () => {
+  document.querySelector("#discount-email-error").textContent = "";
+  discountEmail.removeAttribute("aria-invalid");
+});
 checkoutForm.addEventListener("submit", (event) => {
   event.preventDefault();
   clearCheckoutErrors();
@@ -522,6 +599,7 @@ document.querySelectorAll("[data-footer-category]").forEach((link) => {
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
     if (cartDrawer.classList.contains("open") || quickModal.classList.contains("open")) closeOverlays();
+    if (!discountPanel.hidden) setDiscountPanelOpen(false, true);
     const menu = document.querySelector("#mobile-nav");
     if (menu.classList.contains("open")) {
       menu.classList.remove("open");
@@ -530,6 +608,9 @@ document.addEventListener("keydown", (event) => {
   }
   if (event.key === "Tab" && quickModal.classList.contains("open")) trapFocus(event, quickModal);
   if (event.key === "Tab" && cartDrawer.classList.contains("open")) trapFocus(event, cartDrawer);
+});
+document.addEventListener("click", (event) => {
+  if (!discountPanel.hidden && !discountWidget.contains(event.target)) setDiscountPanelOpen(false);
 });
 
 function trapFocus(event, container) {
@@ -551,5 +632,6 @@ document.addEventListener("error", (event) => {
 }, true);
 
 renderProducts();
+updateDiscountPanel();
 updateCart();
 setPageFromHash();

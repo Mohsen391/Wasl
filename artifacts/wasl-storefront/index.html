@@ -205,6 +205,7 @@
             </div>
             <div class="checkout-totals">
               <div><span>Product subtotal</span><strong id="checkout-subtotal">KWD 0.000</strong></div>
+              <div class="checkout-discount-row" id="checkout-discount-row" hidden><span>10% discount · WASL10</span><strong id="checkout-discount"></strong></div>
               <div><span>Delivery</span><span class="not-charged">Not charged</span></div>
               <div class="checkout-grand-total"><span>Total</span><strong id="checkout-total">KWD 0.000</strong></div>
             </div>
@@ -251,5 +252,37 @@
     </section>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <div class="sr-only" id="announcement" aria-live="polite"></div>
+    <aside class="discount-widget" id="discount-widget" aria-label="Optional 10 percent discount">
+      <button class="discount-tab" id="discount-tab" type="button" aria-controls="discount-panel" aria-expanded="false" aria-label="Open optional 10 percent discount offer">
+        <span class="discount-tab-mark">10%</span>
+        <span class="discount-tab-copy">OFF YOUR ORDER</span>
+      </button>
+      <section class="discount-panel" id="discount-panel" aria-labelledby="discount-title" hidden>
+        <div class="discount-panel-head">
+          <div>
+            <span class="discount-kicker">A LITTLE EXTRA</span>
+            <h2 id="discount-title">Take 10% off<span>.</span></h2>
+          </div>
+          <button class="discount-close" id="discount-close" type="button" aria-label="Close discount offer">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+          </button>
+        </div>
+        <div id="discount-signup-state">
+          <p class="discount-lede">Enter your email to unlock 10% off your cart. Signing up is optional.</p>
+          <form id="discount-form" novalidate>
+            <label class="discount-email-label" for="discount-email">Email address</label>
+            <input id="discount-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required aria-describedby="discount-email-error">
+            <small class="discount-error" id="discount-email-error"></small>
+            <button class="button button-primary discount-submit" type="submit">Get my 10% off</button>
+          </form>
+          <p class="discount-privacy">Demo only: your email isn’t saved or sent anywhere.</p>
+        </div>
+        <div class="discount-success" id="discount-success-state" role="status" aria-live="polite" tabindex="-1" hidden>
+          <span class="discount-success-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></span>
+          <strong>Your 10% discount is active.</strong>
+          <p>Code <b>WASL10</b> is applied to this cart. No payment is taken in this demo.</p>
+        </div>
+      </section>
+    </aside>
   </body>
 </html>
