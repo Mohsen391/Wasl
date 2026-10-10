@@ -91,11 +91,13 @@ const checkoutEmpty = document.querySelector("#checkout-empty");
 const checkoutSuccess = document.querySelector("#checkout-success");
 const discountWidget = document.querySelector("#discount-widget");
 const discountTab = document.querySelector("#discount-tab");
+const discountModalLayer = document.querySelector("#discount-modal-layer");
 const discountPanel = document.querySelector("#discount-panel");
 const discountForm = document.querySelector("#discount-form");
 const discountEmail = document.querySelector("#discount-email");
 const discountSignupState = document.querySelector("#discount-signup-state");
 const discountSuccessState = document.querySelector("#discount-success-state");
+const copyDiscountCodeButton = document.querySelector("#copy-discount-code");
 let toastTimer;
 
 function cartSubtotal() {
@@ -239,18 +241,52 @@ function updateCheckoutTotals(subtotal = cartSubtotal()) {
 function updateDiscountPanel() {
   discountSignupState.hidden = state.discountApplied;
   discountSuccessState.hidden = !state.discountApplied;
-  discountTab.setAttribute("aria-label", state.discountApplied ? "10 percent discount applied" : "Open optional 10 percent discount offer");
+  discountTab.setAttribute("aria-label", state.discountApplied ? "Open your 10 percent discount code" : "Open optional 10 percent discount offer");
   discountTab.classList.toggle("discount-applied", state.discountApplied);
 }
 
-function setDiscountPanelOpen(open, restoreFocus = false) {
-  discountPanel.hidden = !open;
+function setDiscountModalOpen(open, restoreFocus = false) {
+  discountModalLayer.hidden = !open;
   discountTab.setAttribute("aria-expanded", String(open));
-  if (open && !state.discountApplied) {
-    window.setTimeout(() => discountEmail.focus(), 0);
+  document.body.classList.toggle("discount-modal-open", open);
+  if (open) {
+    window.setTimeout(() => (state.discountApplied ? copyDiscountCodeButton : discountEmail).focus(), 0);
   } else if (!open && restoreFocus) {
     discountTab.focus();
   }
+}
+
+function fallbackCopyDiscountCode() {
+  const field = document.createElement("textarea");
+  field.value = document.querySelector("#discount-code").textContent;
+  field.setAttribute("readonly", "");
+  field.style.position = "fixed";
+  field.style.left = "-9999px";
+  document.body.append(field);
+  field.select();
+  const copied = document.execCommand("copy");
+  field.remove();
+  return copied;
+}
+
+async function copyDiscountCode() {
+  const code = document.querySelector("#discount-code").textContent;
+  let copied = false;
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(code);
+      copied = true;
+    }
+  } catch {
+    copied = false;
+  }
+  if (!copied) copied = fallbackCopyDiscountCode();
+  if (!copied) {
+    document.querySelector("#discount-copy-feedback").textContent = "Couldn’t copy automatically. Please select and copy WASL10.";
+    return;
+  }
+  announce("Discount code WASL10 copied. Your discount remains applied.");
+  setDiscountModalOpen(false, true);
 }
 
 function setPageFromHash() {
@@ -483,8 +519,16 @@ document.querySelector("#drawer-footer").addEventListener("click", (event) => {
   if (!event.target.closest("[data-checkout]")) return;
   openCheckout();
 });
-discountTab.addEventListener("click", () => setDiscountPanelOpen(discountPanel.hidden));
-document.querySelector("#discount-close").addEventListener("click", () => setDiscountPanelOpen(false, true));
+discountTab.addEventListener("click", () => setDiscountModalOpen(discountModalLayer.hidden));
+document.querySelector("#discount-dismiss").addEventListener("click", () => {
+  discountWidget.hidden = true;
+  document.querySelector("#cart-open").focus();
+});
+document.querySelector("#discount-close").addEventListener("click", () => setDiscountModalOpen(false, true));
+discountModalLayer.addEventListener("click", (event) => {
+  if (event.target === discountModalLayer) setDiscountModalOpen(false, true);
+});
+copyDiscountCodeButton.addEventListener("click", copyDiscountCode);
 discountForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const emailError = document.querySelector("#discount-email-error");
@@ -502,11 +546,12 @@ discountForm.addEventListener("submit", (event) => {
   state.discountApplied = true;
   discountForm.reset();
   updateDiscountPanel();
-  discountSuccessState.focus();
+  document.querySelector("#discount-copy-feedback").textContent = "";
+  copyDiscountCodeButton.focus();
   updateHeader();
   renderCart();
   if (location.hash === "#checkout") updateCheckoutTotals();
-  announce("Your 10 percent discount is active. Code WASL10 has been applied.");
+  announce("Your discount code is ready to copy. WASL10 is active for this cart.");
 });
 discountForm.addEventListener("input", () => {
   document.querySelector("#discount-email-error").textContent = "";
@@ -599,7 +644,7 @@ document.querySelectorAll("[data-footer-category]").forEach((link) => {
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
     if (cartDrawer.classList.contains("open") || quickModal.classList.contains("open")) closeOverlays();
-    if (!discountPanel.hidden) setDiscountPanelOpen(false, true);
+    if (!discountModalLayer.hidden) setDiscountModalOpen(false, true);
     const menu = document.querySelector("#mobile-nav");
     if (menu.classList.contains("open")) {
       menu.classList.remove("open");
@@ -608,9 +653,7 @@ document.addEventListener("keydown", (event) => {
   }
   if (event.key === "Tab" && quickModal.classList.contains("open")) trapFocus(event, quickModal);
   if (event.key === "Tab" && cartDrawer.classList.contains("open")) trapFocus(event, cartDrawer);
-});
-document.addEventListener("click", (event) => {
-  if (!discountPanel.hidden && !discountWidget.contains(event.target)) setDiscountPanelOpen(false);
+  if (event.key === "Tab" && !discountModalLayer.hidden) trapFocus(event, discountPanel);
 });
 
 function trapFocus(event, container) {

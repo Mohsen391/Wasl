@@ -253,11 +253,16 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <div class="sr-only" id="announcement" aria-live="polite"></div>
     <aside class="discount-widget" id="discount-widget" aria-label="Optional 10 percent discount">
-      <button class="discount-tab" id="discount-tab" type="button" aria-controls="discount-panel" aria-expanded="false" aria-label="Open optional 10 percent discount offer">
+      <button class="discount-tab" id="discount-tab" type="button" aria-controls="discount-modal-layer" aria-expanded="false" aria-label="Open optional 10 percent discount offer">
         <span class="discount-tab-mark">10%</span>
         <span class="discount-tab-copy">OFF YOUR ORDER</span>
       </button>
-      <section class="discount-panel" id="discount-panel" aria-labelledby="discount-title" hidden>
+      <button class="discount-dismiss" id="discount-dismiss" type="button" aria-label="Remove the discount tag">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+      </button>
+    </aside>
+    <div class="discount-modal-layer" id="discount-modal-layer" hidden>
+      <section class="discount-panel" id="discount-panel" role="dialog" aria-modal="true" aria-labelledby="discount-title" aria-describedby="discount-lede">
         <div class="discount-panel-head">
           <div>
             <span class="discount-kicker">A LITTLE EXTRA</span>
@@ -268,7 +273,7 @@
           </button>
         </div>
         <div id="discount-signup-state">
-          <p class="discount-lede">Enter your email to unlock 10% off your cart. Signing up is optional.</p>
+          <p class="discount-lede" id="discount-lede">Enter your email to unlock 10% off your cart. Signing up is optional.</p>
           <form id="discount-form" novalidate>
             <label class="discount-email-label" for="discount-email">Email address</label>
             <input id="discount-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required aria-describedby="discount-email-error">
@@ -279,10 +284,17 @@
         </div>
         <div class="discount-success" id="discount-success-state" role="status" aria-live="polite" tabindex="-1" hidden>
           <span class="discount-success-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></span>
-          <strong>Your 10% discount is active.</strong>
-          <p>Code <b>WASL10</b> is applied to this cart. No payment is taken in this demo.</p>
+          <div class="discount-success-copy">
+            <strong>Your 10% discount is active.</strong>
+            <p>Your code is ready. Copy it before you continue shopping.</p>
+            <div class="discount-code-row">
+              <code id="discount-code">WASL10</code>
+              <button class="discount-copy-button" id="copy-discount-code" type="button">Copy code</button>
+            </div>
+            <small class="discount-copy-feedback" id="discount-copy-feedback" aria-live="polite"></small>
+          </div>
         </div>
       </section>
-    </aside>
+    </div>
   </body>
 </html>
