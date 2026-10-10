@@ -68,7 +68,8 @@ const state = {
   favorites: new Set(),
   cart: new Map(),
   quickProduct: null,
-  lastFocus: null
+  lastFocus: null,
+  orderReceived: false
 };
 
 const grid = document.querySelector("#product-grid");
@@ -81,6 +82,12 @@ const quickModal = document.querySelector("#quick-modal");
 const overlay = document.querySelector("#overlay");
 const toast = document.querySelector("#toast");
 const announcement = document.querySelector("#announcement");
+const storeView = document.querySelector("#store-view");
+const checkoutView = document.querySelector("#checkout-view");
+const checkoutForm = document.querySelector("#checkout-form");
+const checkoutLayout = document.querySelector("#checkout-content");
+const checkoutEmpty = document.querySelector("#checkout-empty");
+const checkoutSuccess = document.querySelector("#checkout-success");
 let toastTimer;
 
 function renderProducts() {
@@ -172,6 +179,64 @@ function renderCart() {
 function updateCart() {
   updateHeader();
   renderCart();
+  if (location.hash === "#checkout") renderCheckout();
+}
+
+function renderCheckout() {
+  const items = [...state.cart.values()];
+  const quantity = items.reduce((sum, item) => sum + item.quantity, 0);
+  const subtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  document.querySelector("#checkout-item-count").textContent = `${quantity} ${quantity === 1 ? "item" : "items"}`;
+  document.querySelector("#checkout-items").innerHTML = items.map(({ product, quantity: count }) => `
+    <article class="checkout-item">
+      <div class="checkout-item-image">${product.image ? `<img src="${product.image}" alt="" loading="lazy">` : ""}</div>
+      <div class="checkout-item-info"><strong>${product.name}</strong><small>Qty ${count} · ${formatPrice(product.price)} each</small></div>
+      <span class="checkout-item-price">${formatPrice(product.price * count)}</span>
+    </article>`).join("");
+  document.querySelector("#checkout-subtotal").textContent = formatPrice(subtotal);
+  document.querySelector("#checkout-total").textContent = formatPrice(subtotal);
+
+  const showingSuccess = state.orderReceived;
+  const showingEmpty = !items.length && !showingSuccess;
+  checkoutSuccess.hidden = !showingSuccess;
+  checkoutEmpty.hidden = !showingEmpty;
+  checkoutLayout.hidden = showingSuccess || showingEmpty;
+  checkoutForm.reset();
+  clearCheckoutErrors();
+}
+
+function setPageFromHash() {
+  const checkout = location.hash === "#checkout";
+  storeView.hidden = checkout;
+  checkoutView.hidden = !checkout;
+  document.querySelector("#contact").hidden = checkout;
+  document.title = checkout ? "Checkout — Wasl Kuwait" : "Wasl — Tech that keeps up";
+  if (checkout) renderCheckout();
+}
+
+function openCheckout() {
+  if (!state.cart.size) return;
+  state.orderReceived = false;
+  closeOverlays(false);
+  if (location.hash === "#checkout") {
+    setPageFromHash();
+  } else {
+    history.pushState(null, "", `${location.pathname}${location.search}#checkout`);
+    setPageFromHash();
+  }
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  window.setTimeout(() => document.querySelector("#checkout-title").focus(), 0);
+}
+
+function clearCheckoutErrors() {
+  checkoutForm.querySelectorAll(".field-error").forEach((error) => { error.textContent = ""; });
+  checkoutForm.querySelectorAll("[aria-invalid='true']").forEach((field) => field.removeAttribute("aria-invalid"));
+}
+
+function checkoutError(field, message) {
+  const error = document.querySelector(`#${field.id}-error`);
+  field.setAttribute("aria-invalid", "true");
+  if (error) error.textContent = message;
 }
 
 function addToCart(id, button) {
@@ -368,13 +433,58 @@ document.querySelector("#drawer-content").addEventListener("click", (event) => {
 });
 document.querySelector("#drawer-footer").addEventListener("click", (event) => {
   if (!event.target.closest("[data-checkout]")) return;
-  if (!state.cart.size) return;
-  state.cart.clear();
-  updateCart();
-  closeOverlays(false);
-  showToast("Order received — this was a demo checkout.", "success");
-  announce("Order received. Your demo cart is now empty.");
+  openCheckout();
 });
+checkoutForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  clearCheckoutErrors();
+  if (!state.cart.size) {
+    renderCheckout();
+    return;
+  }
+  const fields = [...checkoutForm.querySelectorAll("[required]")];
+  let firstInvalid = null;
+  fields.forEach((field) => {
+    let message = "";
+    if (!field.value.trim()) message = "This field is required.";
+    else if (field.id === "checkout-phone" && !/^[569][0-9]{7}$/.test(field.value.trim())) {
+      message = "Enter a valid 8-digit Kuwait mobile number.";
+    } else if (field.type === "email" && !field.validity.valid) {
+      message = "Enter a valid email address.";
+    }
+    if (message) {
+      checkoutError(field, message);
+      if (!firstInvalid) firstInvalid = field;
+    }
+  });
+  const email = document.querySelector("#checkout-email");
+  if (email.value.trim() && !email.validity.valid) {
+    checkoutError(email, "Enter a valid email address.");
+    if (!firstInvalid) firstInvalid = email;
+  }
+  if (firstInvalid) {
+    firstInvalid.focus();
+    announce("Please check the highlighted delivery details.");
+    return;
+  }
+
+  // Demo only: never persist or transmit entered personal details.
+  checkoutForm.reset();
+  state.cart.clear();
+  state.orderReceived = true;
+  updateCart();
+  checkoutSuccess.focus();
+  announce("Order received. No payment was taken and your details were not saved.");
+});
+checkoutForm.addEventListener("input", (event) => {
+  const field = event.target;
+  if (!(field instanceof HTMLElement) || !field.id) return;
+  const error = document.querySelector(`#${field.id}-error`);
+  if (error) error.textContent = "";
+  field.removeAttribute("aria-invalid");
+});
+window.addEventListener("hashchange", setPageFromHash);
+window.addEventListener("popstate", setPageFromHash);
 document.querySelector("#quick-content").addEventListener("click", (event) => {
   const add = event.target.closest("[data-quick-add]");
   if (add) {
@@ -442,3 +552,4 @@ document.addEventListener("error", (event) => {
 
 renderProducts();
 updateCart();
+setPageFromHash();
