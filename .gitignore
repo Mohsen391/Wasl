@@ -47,3 +47,6 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+
+# Uploaded videos are served from App Storage, not bundled with source code.
+/attached_assets/*.mp4

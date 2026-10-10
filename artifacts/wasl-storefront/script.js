@@ -291,6 +291,7 @@ async function copyDiscountCode() {
 
 function setPageFromHash() {
   const checkout = location.hash === "#checkout";
+  if (checkout) document.querySelector("#wasl-commercial").pause();
   storeView.hidden = checkout;
   checkoutView.hidden = !checkout;
   document.querySelector("#contact").hidden = checkout;
@@ -675,6 +676,9 @@ document.addEventListener("error", (event) => {
 }, true);
 
 renderProducts();
+document.querySelector("#wasl-commercial").addEventListener("error", () => {
+  document.querySelector("#commercial-error").hidden = false;
+});
 updateDiscountPanel();
 updateCart();
 setPageFromHash();
