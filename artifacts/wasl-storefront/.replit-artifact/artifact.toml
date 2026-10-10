@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Wasl Tech Store"
+description = "A responsive Kuwaiti tech-accessories storefront with local product search, category filters, favorites, a cart drawer, and demo checkout."
+version = "1.0.0"
+id = "artifacts/wasl-storefront"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 18956
+
+[services.development]
+run = "pnpm --filter @workspace/wasl-storefront run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/wasl-storefront", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/wasl-storefront/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18956"
+BASE_PATH = "/"

@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Wasl tech accessories, made for Kuwait. Same-day delivery across all six governorates.">
+    <meta name="theme-color" content="#f6fafe">
+    <title>Wasl — Tech that keeps up</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css">
+    <script src="./script.js" defer></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="#" aria-label="Wasl home">
+          <span class="brand-mark" aria-hidden="true"><span></span></span>
+          <span>WASL<span class="brand-period">.</span></span>
+        </a>
+        <div class="local-pill"><span class="status-dot"></span> Kuwait same-day <span class="local-flag">KW</span></div>
+        <nav class="desktop-nav" aria-label="Main navigation">
+          <a class="nav-link is-current" href="#products">Products</a>
+          <a class="nav-link" href="#why-wasl">Why Wasl</a>
+          <a class="nav-link" href="#contact">Contact</a>
+          <a class="nav-link" href="#heat-tested">Kuwait heat tested</a>
+        </nav>
+        <div class="header-actions">
+          <button class="icon-button search-jump" id="search-focus" type="button" aria-label="Search products" data-testid="search-focus"><svg viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.5"/><path d="m16 16 4.4 4.4"/></svg></button>
+          <button class="icon-button favorite-nav" id="favorites-toggle" type="button" aria-label="Show favorites" aria-pressed="false" data-testid="favorites-toggle"><svg viewBox="0 0 24 24"><path d="M20.8 8.7c0 5.1-8.8 11-8.8 11s-8.8-5.9-8.8-11a4.7 4.7 0 0 1 8.8-2.2 4.7 4.7 0 0 1 8.8 2.2Z"/></svg><span class="count-badge" id="favorite-count">0</span></button>
+          <button class="cart-trigger" id="cart-open" type="button" aria-label="Open shopping cart" data-testid="cart-open"><svg viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 9V6a3 3 0 0 1 6 0v3"/></svg><span class="cart-trigger-total" id="header-total">KWD 0.000</span><span class="count-badge cart-count" id="cart-count">0</span></button>
+          <button class="mobile-menu-toggle icon-button" id="mobile-menu-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+        </div>
+      </div>
+      <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile navigation">
+        <a href="#products">Products</a><a href="#why-wasl">Why Wasl</a><a href="#contact">Contact</a><a href="#heat-tested">Kuwait heat tested</a>
+      </nav>
+    </header>
+
+    <main>
+      <div class="delivery-ribbon"><span class="status-dot"></span> Order before 4 PM for same-day delivery across Kuwait <span class="ribbon-separator">·</span> All 6 governorates</div>
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-grid container">
+          <div class="hero-copy">
+            <div class="eyebrow heat-eyebrow"><span class="status-dot"></span> SHUWAIKH HEAT CHAMBER VALIDATED <span class="eyebrow-temp">50°C</span></div>
+            <h1 id="hero-title">Connect your day.<br><span>Stay charged.</span></h1>
+            <p class="hero-lede">Chargers, cables and everyday gear built for Kuwait heat. Tested at 50°C, ready for wherever the day takes you.</p>
+            <div class="hero-actions">
+              <a class="button button-primary" href="#products">Shop now <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>
+              <a class="button button-soft" href="#why-wasl"><span class="seal-icon" aria-hidden="true">✓</span> Why Wasl?</a>
+            </div>
+            <div class="hero-metrics">
+              <div><strong>65W</strong><span>GaN fast power</span></div>
+              <div><strong class="orange">50°C</strong><span>Thermal tested</span></div>
+              <div><strong class="teal">3–4 hrs</strong><span>Kuwait express</span></div>
+            </div>
+          </div>
+          <div class="hero-visual-wrap">
+            <div class="hero-visual">
+              <div class="visual-meta"><span><i class="live-dot"></i> GaN III architecture</span><span class="temp-label">Delta T: Stable &lt; 42°C</span></div>
+              <div class="tech-stage">
+                <div class="stage-grid"></div>
+                <div class="thermal-lines" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+                <div class="charger-art" aria-label="Technical illustration of a fast charger and phone">
+                  <div class="charger-device"><div class="charger-top"><i></i><b>65W GaN</b></div><span class="charger-port"></span><span class="charger-port second"></span><span class="charger-pin"></span><span class="charger-pin pin-two"></span></div>
+                  <svg class="connection-cable" viewBox="0 0 140 130" aria-hidden="true"><path d="M4 6C94 0 48 116 134 111" fill="none" stroke="url(#cable)" stroke-width="8" stroke-linecap="round" stroke-dasharray="1 3"/><defs><linearGradient id="cable" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d9400a"/><stop offset=".5" stop-color="#0b1f33"/><stop offset="1" stop-color="#0b7f7c"/></linearGradient></defs></svg>
+                  <div class="phone-art"><div class="phone-screen"><span class="charge-orb">ϟ</span><small>98% FAST</small></div><i></i></div>
+                  <div class="telemetry"><small>KUWAIT RUN TIME</small><strong>50°C / NO DERATE</strong></div>
+                </div>
+              </div>
+              <div class="visual-foot"><span><b class="check-mark">✓</b> Pure copper core</span><span><b class="orange-mark">⌁</b> Intelligent thermal guard</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="trust-strip container" id="why-wasl" aria-label="Why shop with Wasl">
+        <article class="trust-item">
+          <div class="trust-icon teal-icon"><svg viewBox="0 0 24 24"><path d="M3 7h11v11H3zM14 11h4l3 3v4h-7z"/><circle cx="7.5" cy="19" r="1.8"/><circle cx="17.5" cy="19" r="1.8"/></svg></div>
+          <div><div class="trust-title">Same-day delivery <span class="micro-pill">3–4 hrs</span></div><p>Fast dispatch across all 6 Kuwait Governorates. Order before 4 PM for direct delivery.</p></div>
+        </article>
+        <article class="trust-item">
+          <div class="trust-icon blue-icon"><svg viewBox="0 0 24 24"><path d="M12 3 20 6v5c0 5-3.4 8.2-8 10-4.6-1.8-8-5-8-10V6l8-3Z"/><path d="m8.5 12 2.2 2.2 4.8-5"/></svg></div>
+          <div><div class="trust-title">12-month warranty <span class="micro-pill">1:1 swap</span></div><p>Instant replacement directly to your door in Kuwait. No repair delays, zero hassle.</p></div>
+        </article>
+        <article class="trust-item">
+          <div class="trust-icon orange-icon"><svg viewBox="0 0 24 24"><path d="M12 3v3m0 12v3M4 8l2 1m12 6 2 1M4 16l2-1m12-6 2-1"/><circle cx="12" cy="12" r="5"/><path d="M12 9v3l2 1"/></svg></div>
+          <div><div class="trust-title">Tested at 50°C <span class="micro-pill warm">GCC grade</span></div><p>Thermal stress tested for Kuwait summer car dashboards and outdoor endurance.</p></div>
+        </article>
+      </section>
+
+      <section class="catalog container" id="products">
+        <div class="catalog-heading">
+          <div><span class="section-kicker">DIRECT HARDWARE INVENTORY</span><h2>Engineered for everyday power</h2><p class="catalog-subtitle" id="results-summary" aria-live="polite">Eight essentials, ready to ship from Kuwait.</p></div>
+          <label class="search-field"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.5"/><path d="m16 16 4.4 4.4"/></svg><input id="product-search" type="search" placeholder="Search chargers, cables, mounts..." autocomplete="off" aria-label="Search products" data-testid="product-search"><button id="clear-search" type="button" aria-label="Clear search" hidden>×</button></label>
+        </div>
+        <div class="catalog-controls">
+          <div class="category-chips" id="category-chips" role="group" aria-label="Filter by category">
+            <button class="category-chip active" type="button" data-category="all" aria-pressed="true">All items</button>
+            <button class="category-chip" type="button" data-category="Charging" aria-pressed="false">Charging</button>
+            <button class="category-chip" type="button" data-category="Cables" aria-pressed="false">Cables</button>
+            <button class="category-chip" type="button" data-category="Audio" aria-pressed="false">Audio</button>
+            <button class="category-chip" type="button" data-category="Protection" aria-pressed="false">Protection</button>
+            <button class="category-chip" type="button" data-category="Desk" aria-pressed="false">Desk</button>
+            <button class="category-chip" type="button" data-category="Car" aria-pressed="false">Car</button>
+          </div>
+          <span class="stock-note"><i class="status-dot"></i> Kuwait logistics hub: ready to dispatch</span>
+        </div>
+        <div class="product-grid" id="product-grid" aria-live="polite"></div>
+        <div class="empty-state" id="no-results" hidden>
+          <div class="empty-mark" aria-hidden="true">⌕</div><h3>No products match that search</h3><p>Try another term or clear the filters to see all Wasl gear.</p><button class="button button-primary" id="reset-filters" type="button">View all products</button>
+        </div>
+      </section>
+
+      <section class="heat-section" id="heat-tested">
+        <div class="container heat-content">
+          <div class="heat-reading"><span>DESERT ENGINEERING STANDARD</span><strong>50<span>°C</span></strong><div class="heat-status"><i class="live-dot"></i> KUWAIT SUMMER VALIDATION</div><small>LAB TEST NO. 07 · NON-STOP 4 HR</small></div>
+          <div class="heat-copy"><span class="section-kicker light-kicker">BUILT FOR THE KUWAITI SUMMER</span><h2>Good gear shouldn't quit when it gets hot.</h2><p>Standard cables melt, cheap chargers throttle power, and rubber suction mounts drop off the windshield in July heat. Every Wasl accessory is engineered to keep its cool through Kuwait's longest summers.</p>
+            <div class="heat-specs"><article><span class="spec-symbol">◉</span><strong>V0 Fire Shell</strong><p>Flame-retardant casing that won't deform in your car.</p></article><article><span class="spec-symbol teal-spec">⌁</span><strong>Thermal fins</strong><p>Internal graphite fins spread heat quietly.</p></article><article><span class="spec-symbol">⌖</span><strong>Gold-plated pins</strong><p>Corrosion-resistant contacts for years of reliable charging.</p></article></div>
+          </div>
+        </div>
+      </section>
+      <section class="newsletter container"><div class="newsletter-mark">W<span>.</span></div><div><span class="section-kicker">A BETTER DAILY CHARGE</span><h2>Small upgrades. Better days.</h2><p>Locally stocked essentials, dependable delivery, and no guesswork at checkout.</p></div><a href="#products" class="button button-soft">Explore the collection <svg viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a></section>
+    </main>
+
+    <footer class="site-footer" id="contact">
+      <div class="container footer-main">
+        <div class="footer-brand"><a class="brand footer-logo" href="#"><span>WASL<span class="brand-period">.</span></span></a><strong>Connect your day. Stay charged.</strong><p>Engineered consumer tech accessories built to withstand extreme GCC heat and relentless everyday usage.</p></div>
+        <div class="footer-column"><h3>Customer support</h3><a href="tel:+96522008900"><span>↗</span> WhatsApp: +965 2200 8900</a><p><span>◷</span> Same-day: Orders before 4 PM</p><p><span>⌖</span> All 6 Kuwait Governorates</p></div>
+        <div class="footer-column"><h3>Categories</h3><a href="#products" data-footer-category="Charging">GaN Fast Chargers</a><a href="#products" data-footer-category="Cables">Braided Armored Cables</a><a href="#products" data-footer-category="Car">Magnetic Car Mounts</a><a href="#products" data-footer-category="Charging">Power Banks &amp; MagSafe</a></div>
+        <div class="footer-column"><h3>Legal &amp; guarantee</h3><p>12-month replacement guarantee</p><p>Lab tested at 50°C in Kuwait</p><a href="#why-wasl">Privacy policy</a><a href="#why-wasl">Terms of service</a></div>
+      </div>
+      <div class="container footer-bottom"><div class="payments"><span>SUPPORTED PAYMENTS</span><b>K-NET</b><b>Apple Pay</b><b>VISA</b><b>Mastercard</b></div><small>© 2025 Wasl Kuwait Hardware. All rights reserved.</small></div>
+    </footer>
+
+    <div class="overlay" id="overlay" hidden></div>
+    <aside class="cart-drawer" id="cart-drawer" aria-labelledby="cart-title" aria-modal="true" role="dialog" aria-hidden="true" data-testid="cart-drawer">
+      <div class="drawer-head"><div><h2 id="cart-title">Your cart <span id="drawer-count">(0 items)</span></h2><span class="drawer-region"><i class="status-dot"></i> KW · local dispatch</span></div><button class="close-button" type="button" aria-label="Close cart" data-close-overlay><svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+      <div class="drawer-content" id="drawer-content"></div>
+      <div class="drawer-footer" id="drawer-footer"></div>
+    </aside>
+
+    <section class="quick-modal" id="quick-modal" role="dialog" aria-modal="true" aria-labelledby="quick-title" aria-hidden="true" hidden>
+      <button class="close-button modal-close" type="button" aria-label="Close quick view" data-close-overlay><svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+      <div id="quick-content"></div>
+    </section>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <div class="sr-only" id="announcement" aria-live="polite"></div>
+  </body>
+</html>

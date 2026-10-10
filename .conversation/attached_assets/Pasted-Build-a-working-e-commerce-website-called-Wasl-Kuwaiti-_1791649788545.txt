@@ -1,0 +1,30 @@
+Build a working e-commerce website called "Wasl" (Kuwaiti tech accessories store) using the design I attached from Google Stitch. Match the design's layout, colors, fonts and spacing as closely as possible. Use plain HTML, CSS and JavaScript (no framework needed), in English, left to right, fully responsive for phone and desktop.
+
+PRODUCTS (store in a JS array)
+id, name, category, price (KWD), description, 3 features, optional tag.
+1. 65W GaN Fast Charger, Charging, 6.500, tag "Best seller"
+2. Braided USB-C Cable 1m, Cables, 2.500
+3. Wireless Charging Pad, Charging, 7.900
+4. 20,000mAh Power Bank, Charging, 12.500, tag "New"
+5. Wireless Earbuds, Audio, 14.900
+6. Shockproof Phone Case, Protection, 3.500
+7. Foldable Laptop Stand, Desk, 9.900
+8. Car Phone Mount, Car, 4.500
+Write a short description and 3 features for each. Show prices as "KWD 6.500" (always 3 decimals).
+
+REQUIRED INTERACTIONS (all must work)
+1. Hover: product cards lift and the product image tilts or scales slightly.
+2. Search and filter: live search as the user types, plus category chips. Show an empty state ("No products match that search") when nothing matches.
+3. Favorites: heart button toggles on each card, the nav counter updates, and clicking the nav favorites button shows only favorites.
+4. Add to cart: button changes to "Added" for about a second, a small toast appears, and the cart counter updates.
+5. Cart drawer: opens from the right, quantity +/- buttons, remove button, running total, and a free-delivery progress bar (free over KWD 10.000, text says how much is left).
+6. Quick view: clicking a product image opens a popup with details and "Add to cart".
+7. Checkout button shows an "Order received" demo message (no real payment) and empties the cart.
+
+REQUIREMENTS
+- Keep the user's journey clear: enter, explore, choose, interact, get feedback.
+- Responsive: one column on phone, grid on desktop, nav collapses cleanly.
+- Keyboard accessible: visible focus states, Escape closes the drawer and popup.
+- Respect prefers-reduced-motion.
+- Clean, commented code, split into index.html, styles.css and script.js.
+- When done, run the site and tell me how to open it.
