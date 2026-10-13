@@ -49,6 +49,23 @@ function decodeURIComponentSafe(value) {
   try { return decodeURIComponent(value); } catch { return ""; }
 }
 
+function animateChargePercent() {
+  const label = document.querySelector("#charge-percent");
+  if (!label || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const duration = 500;
+  let startedAt;
+  const count = (now) => {
+    startedAt ??= now;
+    const progress = Math.min((now - startedAt) / duration, 1);
+    label.textContent = `${Math.round(98 * progress)}%`;
+    if (progress < 1) window.requestAnimationFrame(count);
+  };
+  window.setTimeout(() => {
+    label.textContent = "0%";
+    window.requestAnimationFrame(count);
+  }, 250);
+}
+
 function initGiftRoute(token) {
   document.title = "A gift for you - Wasl";
   const view = document.querySelector("#gift-view");
@@ -194,6 +211,7 @@ function initStore() {
   const discountWidget = $("#discount-widget");
   const discountTab = $("#discount-tab");
   const discountModalLayer = $("#discount-modal-layer");
+  try { discountWidget.hidden = localStorage.getItem("wasl.discount-dismissed") === "true"; } catch {}
   const discountPanel = $("#discount-panel");
   const discountForm = $("#discount-form");
   const discountEmail = $("#discount-email");
@@ -978,7 +996,7 @@ function initStore() {
   function updateDiscountPanel() {
     discountSignupState.hidden = state.discountApplied;
     discountSuccessState.hidden = !state.discountApplied;
-    discountTab.setAttribute("aria-label", state.discountApplied ? "Open your 10 percent discount code" : "Open optional 10 percent discount offer");
+    discountTab.setAttribute("aria-label", state.discountApplied ? "Copy your 10 percent discount code" : "Open optional 10 percent discount offer");
     discountTab.classList.toggle("discount-applied", state.discountApplied);
   }
   function setDiscountModalOpen(open, restoreFocus = false) {
@@ -1088,8 +1106,19 @@ function initStore() {
     if (e) e.textContent = "";
   });
 
-  discountTab.addEventListener("click", () => setDiscountModalOpen(discountModalLayer.hidden));
-  $("#discount-dismiss").addEventListener("click", () => { discountWidget.hidden = true; $("#cart-open").focus(); });
+  discountTab.addEventListener("click", () => {
+    if (state.discountApplied) { copyDiscountCode(); return; }
+    setDiscountModalOpen(discountModalLayer.hidden);
+  });
+  $("#discount-dismiss").addEventListener("click", () => {
+    try { localStorage.setItem("wasl.discount-dismissed", "true"); } catch {}
+    discountWidget.classList.add("is-dismissing");
+    $("#cart-open").focus();
+    window.setTimeout(() => {
+      discountWidget.hidden = true;
+      discountWidget.classList.remove("is-dismissing");
+    }, window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 250);
+  });
   $("#discount-close").addEventListener("click", () => setDiscountModalOpen(false, true));
   discountModalLayer.addEventListener("click", (event) => { if (event.target === discountModalLayer) setDiscountModalOpen(false, true); });
   copyDiscountCodeButton.addEventListener("click", copyDiscountCode);
@@ -1215,6 +1244,7 @@ function initStore() {
   updateDiscountPanel();
   updateCart();
   setPageFromHash();
+  animateChargePercent();
   loadProducts();
   verifySession();
 }

@@ -1,1 +1,2 @@
 - [Protected secrets](environment-secrets.md) — runtime availability does not prove a credential was saved securely; avoid raw config diffs.
+- [Patch context](patch-context.md) — repeated calls need unique neighboring lines; indentation alone does not disambiguate patch locations.
