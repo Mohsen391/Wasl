@@ -152,14 +152,14 @@
           </div>
           <div class="demo-notice" role="note">
             <span class="demo-notice-mark" aria-hidden="true">i</span>
-            <span><strong>Demo checkout</strong><small>No payment is taken. No payment details needed.</small></span>
+            <span><strong>Secure order checkout</strong><small>No payment is taken. No payment details needed.</small></span>
           </div>
         </div>
         <div class="checkout-layout" id="checkout-content">
           <section class="checkout-panel checkout-form-panel" aria-labelledby="delivery-title">
             <div class="checkout-panel-heading">
               <span class="checkout-step">01</span>
-              <div><h2 id="delivery-title">Delivery details</h2><p>We’ll use these details for this demo only.</p></div>
+              <div><h2 id="delivery-title">Delivery details</h2><p>Saved with your order so the shop can fulfill it.</p></div>
             </div>
             <form id="checkout-form" novalidate>
               <div class="checkout-fields">
@@ -203,8 +203,9 @@
                   <textarea id="checkout-instructions" name="instructions" rows="3" placeholder="Landmark, floor, or other helpful details"></textarea>
                 </label>
               </div>
-              <p class="privacy-note"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 20 6v5c0 5-3.4 8.2-8 10-4.6-1.8-8-5-8-10V6l8-3Z"/><path d="M9 12h6"/></svg> This is a demo. Your details are not saved or sent anywhere.</p>
-              <button class="button button-primary place-order-button" type="submit">Place demo order <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button>
+              <p class="checkout-submit-error" id="checkout-submit-error" role="alert" hidden></p>
+              <p class="privacy-note"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 20 6v5c0 5-3.4 8.2-8 10-4.6-1.8-8-5-8-10V6l8-3Z"/><path d="M9 12h6"/></svg> Delivery details are stored with your order for fulfillment and are not shown on the confirmation screen. No payment details are collected.</p>
+              <button class="button button-primary place-order-button" type="submit">Place order <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button>
             </form>
           </section>
           <aside class="checkout-panel checkout-summary-panel" aria-labelledby="order-summary-title">
@@ -235,9 +236,9 @@
         </section>
         <section class="checkout-state-card checkout-success-card" id="checkout-success" hidden aria-labelledby="checkout-success-title" tabindex="-1">
           <div class="checkout-success-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></div>
-          <span class="section-kicker">DEMO ORDER COMPLETE</span>
-          <h2 id="checkout-success-title">Order received<span>.</span></h2>
-          <p>Your demo order has been received. No payment was taken, and your details were not saved or sent.</p>
+          <span class="section-kicker">ORDER CONFIRMED</span>
+          <h2 id="checkout-success-title">Order saved<span>.</span></h2>
+          <p id="order-confirmation-copy">Your order is saved. Reference: <strong id="order-reference"></strong>. Total: <strong id="order-confirmation-total"></strong>. Your delivery details are stored privately for fulfillment. No payment was taken.</p>
           <a class="button button-primary" href="#products">Return to shopping</a>
         </section>
       </div>

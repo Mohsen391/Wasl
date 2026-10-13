@@ -253,6 +253,7 @@ h1,h2,h3,p { margin-top:0; }
 .field-error:not(:empty) { display:block; }
 .privacy-note { display:flex;align-items:flex-start;gap:8px;margin:17px 0 15px;color:#718294;font-size:10px;line-height:1.5; }
 .privacy-note svg { flex:none;width:16px;height:16px;color:var(--teal); }
+.checkout-submit-error { margin:14px 0 0;padding:10px 12px;border:1px solid #f1c2bc;border-radius:8px;background:#fff4f2;color:#9f3027;font-size:12px;line-height:1.5; }
 .place-order-button { width:100%;min-height:49px; }
 .place-order-button svg { width:17px;height:17px; }
 .checkout-items { display:flex;flex-direction:column;gap:12px;padding:17px 0; }

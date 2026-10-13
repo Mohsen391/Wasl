@@ -1,4 +1,4 @@
-/* Wasl storefront: a self-contained demo catalog and cart, with no network/API calls. */
+/* Wasl storefront: product catalog, cart, and order placement. */
 const products = [
   {
     id: 1, name: "65W GaN Fast Charger", category: "Charging", price: 6500, tag: "Best seller",
@@ -70,7 +70,10 @@ const state = {
   discountApplied: false,
   quickProduct: null,
   lastFocus: null,
-  orderReceived: false
+  orderReceived: false,
+  orderReference: null,
+  orderTotalFils: null,
+  isSubmittingOrder: false
 };
 
 const grid = document.querySelector("#product-grid");
@@ -89,6 +92,8 @@ const checkoutForm = document.querySelector("#checkout-form");
 const checkoutLayout = document.querySelector("#checkout-content");
 const checkoutEmpty = document.querySelector("#checkout-empty");
 const checkoutSuccess = document.querySelector("#checkout-success");
+
+const checkoutSubmitError = document.querySelector("#checkout-submit-error");
 const discountWidget = document.querySelector("#discount-widget");
 const discountTab = document.querySelector("#discount-tab");
 const discountModalLayer = document.querySelector("#discount-modal-layer");
@@ -224,6 +229,10 @@ function renderCheckout() {
   const showingSuccess = state.orderReceived;
   const showingEmpty = !items.length && !showingSuccess;
   checkoutSuccess.hidden = !showingSuccess;
+  if (showingSuccess) {
+    document.querySelector("#order-reference").textContent = state.orderReference ?? "";
+    document.querySelector("#order-confirmation-total").textContent = formatPrice(state.orderTotalFils ?? 0);
+  }
   checkoutEmpty.hidden = !showingEmpty;
   checkoutLayout.hidden = showingSuccess || showingEmpty;
   checkoutForm.reset();
@@ -444,7 +453,7 @@ function setCategory(category) {
 grid.addEventListener("click", (event) => {
   const favorite = event.target.closest("[data-favorite]");
   if (favorite) { event.stopPropagation(); toggleFavorite(favorite.dataset.favorite); return; }
-  const add = event.target.closest("[data-add]");
+  const add = event.target.closest("[data-quick-add]");
   if (add) { addToCart(add.dataset.add, add); return; }
   const quick = event.target.closest("[data-quick]");
   if (quick) openQuickView(quick.dataset.quick);
@@ -495,7 +504,7 @@ document.querySelector("#drawer-content").addEventListener("click", (event) => {
   const quantityButton = event.target.closest("[data-qty]");
   if (quantityButton) {
     const id = Number(quantityButton.dataset.qty);
-    const item = state.cart.get(id);
+    const item = state.cart.get(Number(remove.dataset.remove));
     if (!item) return;
     const next = item.quantity + Number(quantityButton.dataset.change);
     if (next <= 0) state.cart.delete(id);
@@ -558,9 +567,12 @@ discountForm.addEventListener("input", () => {
   document.querySelector("#discount-email-error").textContent = "";
   discountEmail.removeAttribute("aria-invalid");
 });
-checkoutForm.addEventListener("submit", (event) => {
+checkoutForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   clearCheckoutErrors();
+  checkoutSubmitError.hidden = true;
+  checkoutSubmitError.textContent = "";
+  if (state.isSubmittingOrder) return;
   if (!state.cart.size) {
     renderCheckout();
     return;
@@ -581,27 +593,12 @@ checkoutForm.addEventListener("submit", (event) => {
     }
   });
   const email = document.querySelector("#checkout-email");
-  if (email.value.trim() && !email.validity.valid) {
-    checkoutError(email, "Enter a valid email address.");
-    if (!firstInvalid) firstInvalid = email;
-  }
-  if (firstInvalid) {
-    firstInvalid.focus();
-    announce("Please check the highlighted delivery details.");
-    return;
-  }
 
-  // Demo only: never persist or transmit entered personal details.
-  checkoutForm.reset();
-  state.cart.clear();
-  state.orderReceived = true;
-  updateCart();
-  checkoutSuccess.focus();
-  announce("Order received. No payment was taken and your details were not saved.");
-});
-checkoutForm.addEventListener("input", (event) => {
+  const submitButton = checkoutForm.querySelector(".place-order-button");
   const field = event.target;
   if (!(field instanceof HTMLElement) || !field.id) return;
+  checkoutSubmitError.hidden = true;
+  checkoutSubmitError.textContent = "";
   const error = document.querySelector(`#${field.id}-error`);
   if (error) error.textContent = "";
   field.removeAttribute("aria-invalid");
@@ -622,7 +619,7 @@ document.querySelector("#quick-content").addEventListener("click", (event) => {
 });
 document.querySelector("#mobile-menu-toggle").addEventListener("click", (event) => {
   const button = event.currentTarget;
-  const menu = document.querySelector("#mobile-nav");
+    const menu = document.querySelector("#mobile-nav");
   const open = menu.classList.toggle("open");
   button.setAttribute("aria-expanded", String(open));
   button.setAttribute("aria-label", open ? "Close navigation" : "Toggle navigation");
@@ -682,3 +679,38 @@ document.querySelector("#wasl-commercial").addEventListener("error", () => {
 updateDiscountPanel();
 updateCart();
 setPageFromHash();
+
+  const originalButtonContent = submitButton.innerHTML;
+
+    const response = await fetch("/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const result = await response.json().catch(() => null);
+
+  const formData = new FormData(checkoutForm);
+
+  const payload = {
+    items: [...state.cart.values()].map(({ product, quantity }) => ({
+      productId: product.id,
+      quantity,
+    })),
+    ...(state.discountApplied ? { couponCode: "WASL10" } : {}),
+    delivery: {
+      name: String(formData.get("name") ?? "").trim(),
+      phone: String(formData.get("phone") ?? "").trim(),
+      ...(String(formData.get("email") ?? "").trim()
+        ? { email: String(formData.get("email")).trim() }
+        : {}),
+      governorate: String(formData.get("governorate") ?? ""),
+      area: String(formData.get("area") ?? "").trim(),
+      block: String(formData.get("block") ?? "").trim(),
+      street: String(formData.get("street") ?? "").trim(),
+      building: String(formData.get("building") ?? "").trim(),
+      ...(String(formData.get("instructions") ?? "").trim()
+        ? { instructions: String(formData.get("instructions")).trim() }
+        : {}),
+    },
+  };
