@@ -1,0 +1,24 @@
+Follow the apple-design SKILL.md. Visual and interaction changes only: do not touch the API, MongoDB, auth, orders, or secrets.
+
+1. Connect the hero image with the text (reduce friction)
+- Tighten the gap between the hero text block (headline, subline, buttons) and the charger + phone illustration, so they read as one unit. Use 32-48px between them instead of the current large gap.
+- Make the illustration card clearly lead into the stats row (65W, 50°C, 3-4 hrs): the stats should sit right under the card with 32-48px spacing and be fully visible without being cut off.
+- Add a subtle entrance animation: headline, then subline, then buttons, then the card fade up in sequence (opacity + translateY, 500ms, 80ms stagger).
+- Animate the illustration: the charging cable gently draws in, the phone battery counts up to 98%, and the blue LED on the charger softly pulses. Respect prefers-reduced-motion.
+- Make the "Shop the collection" button scroll smoothly to the product grid.
+- Keep the hero short and clean: no extra text.
+
+2. Animate the 10% discount pill (bottom-left)
+- Entrance: after 1.5s it slides up and fades in with a small spring-like ease.
+- Idle: a very subtle pulse or shimmer on the blue "10%" part every few seconds.
+- Hover (and keyboard focus within the pill): the pill smoothly expands and the X close button appears (fade in + slide from the right, 200ms). When not hovered, the X is hidden and the pill is compact.
+- On touch devices, where hover does not exist, show the X always.
+- Clicking the X dismisses the pill with a fade and slide-out, and remembers the choice in localStorage (wrapped in try/catch) so it does not return on reload.
+- The X must be a real button with aria-label="Dismiss discount", at least 32x32px, with a visible focus ring.
+- Clicking the main pill area copies the discount code or applies the discount, whichever already exists. Do not change any discount logic.
+
+3. Rules
+- Only animate opacity and transform, 200-500ms, ease cubic-bezier(0.25, 0.1, 0.25, 1).
+- Keep dark and light mode working, and check at 375px, 768px and 1280px widths. Nothing should overlap.
+- Re-test the full flow when done: sign up, log in, cart, place order, My Orders, gift link.
+- Give me a 5-bullet summary of what changed.
