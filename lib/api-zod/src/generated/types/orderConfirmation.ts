@@ -8,6 +8,9 @@
 import type { OrderConfirmationCurrency } from './orderConfirmationCurrency';
 
 export interface OrderConfirmation {
+  id: string;
+  isGift: boolean;
+  giftToken?: string;
   /** @pattern ^WASL-[A-F0-9-]{36}$ */
   orderReference: string;
   currency: OrderConfirmationCurrency;

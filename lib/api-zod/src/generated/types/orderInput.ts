@@ -7,9 +7,19 @@
  */
 import type { DeliveryDetails } from './deliveryDetails';
 import type { OrderInputCouponCode } from './orderInputCouponCode';
+import type { OrderInputGiftWrap } from './orderInputGiftWrap';
 import type { OrderItemInput } from './orderItemInput';
 
 export interface OrderInput {
+  isGift?: boolean;
+  /**
+     * @minLength 1
+     * @maxLength 80
+     */
+  giftTo?: string;
+  /** @maxLength 300 */
+  giftMessage?: string;
+  giftWrap?: OrderInputGiftWrap;
   /**
      * @minItems 1
      * @maxItems 20

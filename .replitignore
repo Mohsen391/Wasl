@@ -3,6 +3,7 @@
 
 # No need to store the pnpm store twice.
 .local
+.env*
 
 # The storefront streams its commercial from App Storage.
 attached_assets/*.mp4

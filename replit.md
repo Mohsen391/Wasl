@@ -1,44 +1,54 @@
-# [Project name]
+# Wasl Tech Store
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Responsive Kuwaiti tech-accessories storefront with accounts, private pending orders, and personal gift cards.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
+- Managed workflows run the API and storefront with their configured `PORT` and `BASE_PATH`.
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- `npm run seed` — insert the eight samples only when the development MongoDB product collection is empty; reruns preserve existing products.
+- `pnpm --filter @workspace/api-server run test:store` — development API integration checks; creates two synthetic accounts/orders, cleans its own data, and restores reserved stock.
+- Required protected Secrets: `MONGODB_URI` (development Atlas database) and `JWT_SECRET`. Never place credentials in ordinary configuration/environment entries, files, or logs.
 
 ## Stack
 
 - pnpm workspaces, Node.js 24, TypeScript 5.9
 - API: Express 5
-- DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
+- Store catalog/accounts/orders: MongoDB Atlas + Mongoose. The existing PostgreSQL workspace library is retained but not used by these store features.
+- Validation: Zod and Mongoose
 - API codegen: Orval (from OpenAPI spec)
-- Build: esbuild (CJS bundle)
+- Build: esbuild API module, Vite static HTML/CSS/JS storefront
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- Actual store: `artifacts/wasl-storefront/index.html`, `styles.css`, `script.js`; React `src/App.tsx` is not the storefront.
+- Backend: `artifacts/api-server/src/routes/`, `models/`, cached connection `lib/db.ts`.
+- API contract: `lib/api-spec/openapi.yaml`; regenerate helpers when it changes.
+- Sample catalog: backend `src/seed-data.ts` and `src/seed.ts`.
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- User explicitly requires JWT in localStorage and `Authorization: Bearer`, not cookie authentication.
+- Retain plain HTML/CSS/JS and Express; no Next.js migration, Replit Auth, or substitute database.
+- Gift URLs are bearer-access links. Their pages must not load analytics, third-party fonts/assets, or URL-reporting tools. Public gift responses allow only sender name, message, wrap style, and item names.
+- Order creation reserves stock and persists the order atomically on Atlas; no payments are taken.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+Database catalog; composable search/category/mood/favorites; cart and quick view; WASL10 discount; delivery validation; signup/login/logout; private My Orders; gift wrapping, copied links, and public keyboard-accessible unwrap.
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+Preserve the existing design, commercial, mobile accessibility, reduced motion, and three-decimal KWD formatting. No payments or deployment changes were requested.
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- Store prices and totals are integer fils (1/1000 KWD); obtain prices, stock and identity from the server, never client totals/user IDs.
+- Seed/tests must target development MongoDB only. The integration test removes only its synthetic accounts/orders.
+- Storefront builds require workflow environment; ad hoc example: `PORT=18956 BASE_PATH=/ pnpm --filter @workspace/wasl-storefront run build`.
+- Secrets must be read only from `process.env`; check existence without printing values.
 
 ## Pointers
 

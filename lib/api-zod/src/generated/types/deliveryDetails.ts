@@ -10,7 +10,7 @@ import type { DeliveryDetailsGovernorate } from './deliveryDetailsGovernorate';
 export interface DeliveryDetails {
   /**
      * @minLength 2
-     * @maxLength 100
+     * @maxLength 80
      */
   name: string;
   /**
@@ -28,7 +28,7 @@ export interface DeliveryDetails {
   area: string;
   /**
      * @minLength 1
-     * @maxLength 40
+     * @maxLength 30
      */
   block: string;
   /**

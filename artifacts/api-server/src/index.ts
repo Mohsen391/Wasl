@@ -1,5 +1,8 @@
 import app from "./app";
 import { logger } from "./lib/logger";
+import { requireSecrets } from "./lib/db";
+
+requireSecrets();
 
 const rawPort = process.env["PORT"];
 

@@ -9,31 +9,188 @@ import * as zod from 'zod';
 
 
 /**
+ * @summary Database-backed Wasl catalog
+ */
+export const listProductsResponsePriceMin = 0;
+
+export const listProductsResponseStockMin = 0;
+
+
+
+export const ListProductsResponseItem = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "description": zod.string(),
+  "price": zod.number().int().min(listProductsResponsePriceMin).describe('Integer KWD thousandths'),
+  "image": zod.string().url(),
+  "stock": zod.number().int().min(listProductsResponseStockMin),
+  "moods": zod.array(zod.enum(['Cozy', 'Energetic', 'Focus', 'Celebrate'])),
+  "category": zod.string(),
+  "features": zod.array(zod.string()),
+  "tag": zod.string().optional(),
+  "createdAt": zod.coerce.date()
+})
+export const ListProductsResponse = zod.array(ListProductsResponseItem)
+
+
+export const getProductPathIdRegExp = new RegExp('^[a-fA-F0-9]{24}$');
+
+
+export const GetProductParams = zod.object({
+  "id": zod.coerce.string().regex(getProductPathIdRegExp)
+})
+
+export const getProductResponsePriceMin = 0;
+
+export const getProductResponseStockMin = 0;
+
+
+
+export const GetProductResponse = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "description": zod.string(),
+  "price": zod.number().int().min(getProductResponsePriceMin).describe('Integer KWD thousandths'),
+  "image": zod.string().url(),
+  "stock": zod.number().int().min(getProductResponseStockMin),
+  "moods": zod.array(zod.enum(['Cozy', 'Energetic', 'Focus', 'Celebrate'])),
+  "category": zod.string(),
+  "features": zod.array(zod.string()),
+  "tag": zod.string().optional(),
+  "createdAt": zod.coerce.date()
+})
+
+
+export const signupBodyNameMin = 2;
+export const signupBodyNameMax = 80;
+
+export const signupBodyEmailMax = 254;
+
+export const signupBodyPasswordMin = 8;
+
+
+
+export const SignupBody = zod.object({
+  "name": zod.string().min(signupBodyNameMin).max(signupBodyNameMax),
+  "email": zod.string().email().max(signupBodyEmailMax),
+  "password": zod.string().min(signupBodyPasswordMin).describe('Maximum 72 UTF-8 bytes')
+})
+
+export const SignupResponse = zod.object({
+  "token": zod.string().describe('HS256 JWT expiring in 7 days'),
+  "user": zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "email": zod.string().email()
+})
+})
+
+
+export const loginBodyPasswordMax = 200;
+
+
+
+export const LoginBody = zod.object({
+  "email": zod.string().email(),
+  "password": zod.string().min(1).max(loginBodyPasswordMax)
+})
+
+export const LoginResponse = zod.object({
+  "token": zod.string().describe('HS256 JWT expiring in 7 days'),
+  "user": zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "email": zod.string().email()
+})
+})
+
+
+export const CurrentUserResponse = zod.object({
+  "user": zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "email": zod.string().email()
+})
+})
+
+
+/**
+ * Bearer-access gift link. Never includes order IDs, recipient, quantities, prices, user IDs, or delivery details.
+ */
+export const getGiftPathTokenRegExp = new RegExp('^[a-f0-9]{64}$');
+
+
+export const GetGiftParams = zod.object({
+  "token": zod.coerce.string().regex(getGiftPathTokenRegExp)
+})
+
+export const getGiftResponseGiftMessageMax = 300;
+
+
+
+export const GetGiftResponse = zod.object({
+  "senderName": zod.string(),
+  "giftMessage": zod.string().max(getGiftResponseGiftMessageMax),
+  "giftWrap": zod.enum(['Classic', 'Eid', 'Birthday', 'Minimal']),
+  "items": zod.array(zod.string())
+})
+
+
+/**
  * Returns server health status
  * @summary Health check
  */
 export const HealthCheckResponse = zod.object({
   "status": zod.string()
-});
+})
+
+
 /**
- * Saves an order and private delivery details, then returns a public confirmation.
+ * Filters exclusively by the authenticated JWT identity; ignores client user IDs.
+ */
+export const ListMyOrdersResponseItem = zod.object({
+  "id": zod.string(),
+  "orderReference": zod.string(),
+  "items": zod.array(zod.object({
+  "product": zod.string(),
+  "name": zod.string(),
+  "price": zod.number().int(),
+  "quantity": zod.number().int()
+})),
+  "total": zod.number().int(),
+  "subtotalFils": zod.number().int(),
+  "discountFils": zod.number().int(),
+  "status": zod.enum(['pending', 'paid']),
+  "createdAt": zod.coerce.date(),
+  "isGift": zod.boolean(),
+  "giftToken": zod.string().optional()
+})
+export const ListMyOrdersResponse = zod.array(ListMyOrdersResponseItem)
+
+
+/**
+ * Atomically reserves stock and saves a pending order with private delivery details. All prices and totals are server calculated in fils. No payment is taken.
  * @summary Place an order
  */
-export const placeOrderBodyItemsItemProductIdMax = 8;
+export const placeOrderBodyIsGiftDefault = false;
+export const placeOrderBodyGiftToMax = 80;
 
+export const placeOrderBodyGiftMessageMax = 300;
+
+export const placeOrderBodyItemsItemProductIdRegExp = new RegExp('^[a-fA-F0-9]{24}$');
 export const placeOrderBodyItemsItemQuantityMax = 99;
 
 export const placeOrderBodyItemsMax = 20;
 
 export const placeOrderBodyDeliveryNameMin = 2;
-export const placeOrderBodyDeliveryNameMax = 100;
+export const placeOrderBodyDeliveryNameMax = 80;
 
 export const placeOrderBodyDeliveryPhoneRegExp = new RegExp('^[569][0-9]{7}$');
 export const placeOrderBodyDeliveryEmailMax = 254;
 
 export const placeOrderBodyDeliveryAreaMax = 100;
 
-export const placeOrderBodyDeliveryBlockMax = 40;
+export const placeOrderBodyDeliveryBlockMax = 30;
 
 export const placeOrderBodyDeliveryStreetMax = 100;
 
@@ -44,8 +201,12 @@ export const placeOrderBodyDeliveryInstructionsMax = 500;
 
 
 export const PlaceOrderBody = zod.object({
+  "isGift": zod.boolean().default(placeOrderBodyIsGiftDefault),
+  "giftTo": zod.string().min(1).max(placeOrderBodyGiftToMax).optional(),
+  "giftMessage": zod.string().max(placeOrderBodyGiftMessageMax).optional(),
+  "giftWrap": zod.enum(['Classic', 'Eid', 'Birthday', 'Minimal']).optional(),
   "items": zod.array(zod.object({
-  "productId": zod.number().int().min(1).max(placeOrderBodyItemsItemProductIdMax),
+  "productId": zod.string().regex(placeOrderBodyItemsItemProductIdRegExp),
   "quantity": zod.number().int().min(1).max(placeOrderBodyItemsItemQuantityMax)
 })).min(1).max(placeOrderBodyItemsMax),
   "couponCode": zod.enum(['WASL10']).optional(),
@@ -72,9 +233,14 @@ export const placeOrderResponseTotalFilsMin = 0;
 
 
 export const PlaceOrderResponse = zod.object({
+  "id": zod.string(),
+  "isGift": zod.boolean(),
+  "giftToken": zod.string().optional(),
   "orderReference": zod.string().regex(placeOrderResponseOrderReferenceRegExp),
   "currency": zod.enum(['KWD']),
   "subtotalFils": zod.number().int().min(placeOrderResponseSubtotalFilsMin).describe('Amount in fils (one thousandth of a Kuwaiti dinar).'),
   "discountFils": zod.number().int().min(placeOrderResponseDiscountFilsMin).describe('Amount in fils (one thousandth of a Kuwaiti dinar).'),
   "totalFils": zod.number().int().min(placeOrderResponseTotalFilsMin).describe('Amount in fils (one thousandth of a Kuwaiti dinar).')
-});
+})
+
+

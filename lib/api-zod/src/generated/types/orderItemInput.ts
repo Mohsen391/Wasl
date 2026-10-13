@@ -7,11 +7,8 @@
  */
 
 export interface OrderItemInput {
-  /**
-     * @minimum 1
-     * @maximum 8
-     */
-  productId: number;
+  /** @pattern ^[a-fA-F0-9]{24}$ */
+  productId: string;
   /**
      * @minimum 1
      * @maximum 99

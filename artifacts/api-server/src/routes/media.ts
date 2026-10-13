@@ -49,13 +49,30 @@ router.get("/media/:asset", async (req, res): Promise<void> => {
     res.end();
     return;
   }
+  if (res.destroyed || req.aborted) return;
   const stream = file.createReadStream({ start, end });
+  let remoteReady = false;
+  let clientClosed = false;
+  // The SDK installs its internal pipeline after emitting "response".
+  // Destroying its lazy stream before then can throw outside our error listener.
+  stream.once("response", () => {
+    setImmediate(() => {
+      remoteReady = true;
+      if (clientClosed) stream.destroy();
+    });
+  });
   stream.on("error", (err) => {
+    if (clientClosed) return;
     req.log.error({ err }, "Could not stream public media");
     if (!res.headersSent) res.sendStatus(500);
     else res.destroy();
   });
-  res.on("close", () => stream.destroy());
+  res.once("close", () => {
+    clientClosed = true;
+    stream.unpipe(res);
+    if (remoteReady) stream.destroy();
+    else stream.resume(); // Let the SDK finish setting up before cancelling.
+  });
   stream.pipe(res);
 });
 

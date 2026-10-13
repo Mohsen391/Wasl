@@ -1,0 +1,1 @@
+- [Protected secrets](environment-secrets.md) — runtime availability does not prove a credential was saved securely; avoid raw config diffs.

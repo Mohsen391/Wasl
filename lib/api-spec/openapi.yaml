@@ -13,6 +13,97 @@ tags:
   - name: orders
     description: Order placement
 paths:
+  /products:
+    get:
+      operationId: listProducts
+      summary: Database-backed Wasl catalog
+      responses:
+        "200":
+          description: Products, including an empty array when unseeded
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Product" } }
+        "503": { $ref: "#/components/responses/Unavailable" }
+  /products/{id}:
+    get:
+      operationId: getProduct
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, pattern: "^[a-fA-F0-9]{24}$" } }
+      responses:
+        "200":
+          description: Product
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Product" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "503": { $ref: "#/components/responses/Unavailable" }
+  /auth/signup:
+    post:
+      operationId: signup
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SignupInput" }
+      responses:
+        "201":
+          description: Account created and signed in
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuthResult" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "409": { $ref: "#/components/responses/Invalid" }
+        "429": { $ref: "#/components/responses/Invalid" }
+        "503": { $ref: "#/components/responses/Unavailable" }
+  /auth/login:
+    post:
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LoginInput" }
+      responses:
+        "200":
+          description: Signed in
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuthResult" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "429": { $ref: "#/components/responses/Invalid" }
+        "503": { $ref: "#/components/responses/Unavailable" }
+  /auth/me:
+    get:
+      operationId: currentUser
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Verified current identity
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [user]
+                properties:
+                  user: { $ref: "#/components/schemas/User" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "503": { $ref: "#/components/responses/Unavailable" }
+  /gifts/{token}:
+    get:
+      operationId: getGift
+      description: Bearer-access gift link. Never includes order IDs, recipient, quantities, prices, user IDs, or delivery details.
+      parameters:
+        - { name: token, in: path, required: true, schema: { type: string, pattern: "^[a-f0-9]{64}$" } }
+      responses:
+        "200":
+          description: Public gift allowlist
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PublicGift" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/Invalid" }
+        "503": { $ref: "#/components/responses/Unavailable" }
   /healthz:
     get:
       operationId: healthCheck
@@ -27,11 +118,24 @@ paths:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
   /orders:
+    get:
+      operationId: listMyOrders
+      security: [{ bearerAuth: [] }]
+      description: Filters exclusively by the authenticated JWT identity; ignores client user IDs.
+      responses:
+        "200":
+          description: Current user's orders only
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/OwnerOrder" } }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "503": { $ref: "#/components/responses/Unavailable" }
     post:
       operationId: placeOrder
+      security: [{ bearerAuth: [] }]
       tags: [orders]
       summary: Place an order
-      description: Saves an order and private delivery details, then returns a public confirmation.
+      description: Atomically reserves stock and saves a pending order with private delivery details. All prices and totals are server calculated in fils. No payment is taken.
       requestBody:
         required: true
         content:
@@ -51,8 +155,112 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "429": { $ref: "#/components/responses/Invalid" }
+        "503": { $ref: "#/components/responses/Unavailable" }
 components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+  responses:
+    Invalid:
+      description: Invalid input or rate limit exceeded
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ApiError" }
+    Unauthorized:
+      description: Invalid or missing credentials
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ApiError" }
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ApiError" }
+    Unavailable:
+      description: Database temporarily unavailable
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ApiError" }
   schemas:
+    Product:
+      type: object
+      additionalProperties: false
+      required: [id, name, description, price, image, stock, moods, category, features, createdAt]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        description: { type: string }
+        price: { type: integer, minimum: 0, description: Integer KWD thousandths }
+        image: { type: string, format: uri }
+        stock: { type: integer, minimum: 0 }
+        moods: { type: array, items: { type: string, enum: [Cozy, Energetic, Focus, Celebrate] } }
+        category: { type: string }
+        features: { type: array, items: { type: string } }
+        tag: { type: string }
+        createdAt: { type: string, format: date-time }
+    User:
+      type: object
+      additionalProperties: false
+      required: [id, name, email]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        email: { type: string, format: email }
+    SignupInput:
+      type: object
+      required: [name, email, password]
+      properties:
+        name: { type: string, minLength: 2, maxLength: 80 }
+        email: { type: string, format: email, maxLength: 254 }
+        password: { type: string, minLength: 8, description: Maximum 72 UTF-8 bytes }
+    LoginInput:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string, minLength: 1, maxLength: 200 }
+    AuthResult:
+      type: object
+      additionalProperties: false
+      required: [token, user]
+      properties:
+        token: { type: string, description: HS256 JWT expiring in 7 days }
+        user: { $ref: "#/components/schemas/User" }
+    PublicGift:
+      type: object
+      additionalProperties: false
+      required: [senderName, giftMessage, giftWrap, items]
+      properties:
+        senderName: { type: string }
+        giftMessage: { type: string, maxLength: 300 }
+        giftWrap: { type: string, enum: [Classic, Eid, Birthday, Minimal] }
+        items: { type: array, items: { type: string } }
+    OwnerOrder:
+      type: object
+      additionalProperties: false
+      required: [id, orderReference, items, total, subtotalFils, discountFils, status, createdAt, isGift]
+      properties:
+        id: { type: string }
+        orderReference: { type: string }
+        items:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [product, name, price, quantity]
+            properties:
+              product: { type: string }
+              name: { type: string }
+              price: { type: integer }
+              quantity: { type: integer }
+        total: { type: integer }
+        subtotalFils: { type: integer }
+        discountFils: { type: integer }
+        status: { type: string, enum: [pending, paid] }
+        createdAt: { type: string, format: date-time }
+        isGift: { type: boolean }
+        giftToken: { type: string }
     HealthStatus:
       type: object
       properties:
@@ -65,6 +273,10 @@ components:
       additionalProperties: false
       required: [items, delivery]
       properties:
+        isGift: { type: boolean, default: false }
+        giftTo: { type: string, minLength: 1, maxLength: 80 }
+        giftMessage: { type: string, maxLength: 300 }
+        giftWrap: { type: string, enum: [Classic, Eid, Birthday, Minimal] }
         items:
           type: array
           minItems: 1
@@ -82,9 +294,8 @@ components:
       required: [productId, quantity]
       properties:
         productId:
-          type: integer
-          minimum: 1
-          maximum: 8
+          type: string
+          pattern: "^[a-fA-F0-9]{24}$"
         quantity:
           type: integer
           minimum: 1
@@ -97,7 +308,7 @@ components:
         name:
           type: string
           minLength: 2
-          maxLength: 100
+          maxLength: 80
         phone:
           type: string
           pattern: "^[569][0-9]{7}$"
@@ -116,7 +327,7 @@ components:
         block:
           type: string
           minLength: 1
-          maxLength: 40
+          maxLength: 30
         street:
           type: string
           minLength: 1
@@ -131,8 +342,11 @@ components:
     OrderConfirmation:
       type: object
       additionalProperties: false
-      required: [orderReference, currency, subtotalFils, discountFils, totalFils]
+      required: [id, orderReference, currency, subtotalFils, discountFils, totalFils, isGift]
       properties:
+        id: { type: string }
+        isGift: { type: boolean }
+        giftToken: { type: string }
         orderReference:
           type: string
           pattern: "^WASL-[A-F0-9-]{36}$"

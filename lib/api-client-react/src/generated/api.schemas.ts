@@ -5,9 +5,130 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+export type ProductMoodsItem = typeof ProductMoodsItem[keyof typeof ProductMoodsItem];
+
+
+export const ProductMoodsItem = {
+  Cozy: 'Cozy',
+  Energetic: 'Energetic',
+  Focus: 'Focus',
+  Celebrate: 'Celebrate',
+} as const;
+
+export interface Product {
+  id: string;
+  name: string;
+  description: string;
+  /**
+     * Integer KWD thousandths
+     * @minimum 0
+     */
+  price: number;
+  image: string;
+  /** @minimum 0 */
+  stock: number;
+  moods: ProductMoodsItem[];
+  category: string;
+  features: string[];
+  tag?: string;
+  createdAt: string;
+}
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+export interface SignupInput {
+  /**
+     * @minLength 2
+     * @maxLength 80
+     */
+  name: string;
+  /** @maxLength 254 */
+  email: string;
+  /**
+     * Maximum 72 UTF-8 bytes
+     * @minLength 8
+     */
+  password: string;
+}
+
+export interface LoginInput {
+  email: string;
+  /**
+     * @minLength 1
+     * @maxLength 200
+     */
+  password: string;
+}
+
+export interface AuthResult {
+  /** HS256 JWT expiring in 7 days */
+  token: string;
+  user: User;
+}
+
+export type PublicGiftGiftWrap = typeof PublicGiftGiftWrap[keyof typeof PublicGiftGiftWrap];
+
+
+export const PublicGiftGiftWrap = {
+  Classic: 'Classic',
+  Eid: 'Eid',
+  Birthday: 'Birthday',
+  Minimal: 'Minimal',
+} as const;
+
+export interface PublicGift {
+  senderName: string;
+  /** @maxLength 300 */
+  giftMessage: string;
+  giftWrap: PublicGiftGiftWrap;
+  items: string[];
+}
+
+export type OwnerOrderItemsItem = {
+  product: string;
+  name: string;
+  price: number;
+  quantity: number;
+};
+
+export type OwnerOrderStatus = typeof OwnerOrderStatus[keyof typeof OwnerOrderStatus];
+
+
+export const OwnerOrderStatus = {
+  pending: 'pending',
+  paid: 'paid',
+} as const;
+
+export interface OwnerOrder {
+  id: string;
+  orderReference: string;
+  items: OwnerOrderItemsItem[];
+  total: number;
+  subtotalFils: number;
+  discountFils: number;
+  status: OwnerOrderStatus;
+  createdAt: string;
+  isGift: boolean;
+  giftToken?: string;
+}
+
 export interface HealthStatus {
   status: string;
 }
+
+export type OrderInputGiftWrap = typeof OrderInputGiftWrap[keyof typeof OrderInputGiftWrap];
+
+
+export const OrderInputGiftWrap = {
+  Classic: 'Classic',
+  Eid: 'Eid',
+  Birthday: 'Birthday',
+  Minimal: 'Minimal',
+} as const;
 
 export type OrderInputCouponCode = typeof OrderInputCouponCode[keyof typeof OrderInputCouponCode];
 
@@ -17,11 +138,8 @@ export const OrderInputCouponCode = {
 } as const;
 
 export interface OrderItemInput {
-  /**
-     * @minimum 1
-     * @maximum 8
-     */
-  productId: number;
+  /** @pattern ^[a-fA-F0-9]{24}$ */
+  productId: string;
   /**
      * @minimum 1
      * @maximum 99
@@ -44,7 +162,7 @@ export const DeliveryDetailsGovernorate = {
 export interface DeliveryDetails {
   /**
      * @minLength 2
-     * @maxLength 100
+     * @maxLength 80
      */
   name: string;
   /**
@@ -62,7 +180,7 @@ export interface DeliveryDetails {
   area: string;
   /**
      * @minLength 1
-     * @maxLength 40
+     * @maxLength 30
      */
   block: string;
   /**
@@ -80,6 +198,15 @@ export interface DeliveryDetails {
 }
 
 export interface OrderInput {
+  isGift?: boolean;
+  /**
+     * @minLength 1
+     * @maxLength 80
+     */
+  giftTo?: string;
+  /** @maxLength 300 */
+  giftMessage?: string;
+  giftWrap?: OrderInputGiftWrap;
   /**
      * @minItems 1
      * @maxItems 20
@@ -97,6 +224,9 @@ export const OrderConfirmationCurrency = {
 } as const;
 
 export interface OrderConfirmation {
+  id: string;
+  isGift: boolean;
+  giftToken?: string;
   /** @pattern ^WASL-[A-F0-9-]{36}$ */
   orderReference: string;
   currency: OrderConfirmationCurrency;
@@ -120,3 +250,28 @@ export interface OrderConfirmation {
 export interface ApiError {
   error: string;
 }
+
+/**
+ * Invalid input or rate limit exceeded
+ */
+export type InvalidResponse = ApiError;
+
+/**
+ * Invalid or missing credentials
+ */
+export type UnauthorizedResponse = ApiError;
+
+/**
+ * Not found
+ */
+export type NotFoundResponse = ApiError;
+
+/**
+ * Database temporarily unavailable
+ */
+export type UnavailableResponse = ApiError;
+
+export type CurrentUser200 = {
+  user: User;
+};
+

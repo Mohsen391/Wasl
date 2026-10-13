@@ -21,9 +21,20 @@ import type {
 
 import type {
   ApiError,
+  AuthResult,
+  CurrentUser200,
   HealthStatus,
+  InvalidResponse,
+  LoginInput,
+  NotFoundResponse,
   OrderConfirmation,
-  OrderInput
+  OrderInput,
+  OwnerOrder,
+  Product,
+  PublicGift,
+  SignupInput,
+  UnauthorizedResponse,
+  UnavailableResponse
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -52,6 +63,463 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getListProductsUrl = () => {
+
+
+
+
+  return `/api/products`
+}
+
+/**
+ * @summary Database-backed Wasl catalog
+ */
+export const listProducts = async ( options?: Parameters<typeof customFetch>[1]): Promise<Product[]> => {
+
+  return customFetch<Product[]>(getListProductsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListProductsQueryKey = () => {
+    return [
+    `/api/products`
+    ] as const;
+    }
+
+
+export const getListProductsQueryOptions = <TData = Awaited<ReturnType<typeof listProducts>>, TError = ErrorType<UnavailableResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listProducts>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListProductsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listProducts>>> = ({ signal }) => listProducts({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listProducts>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListProductsQueryResult = NonNullable<Awaited<ReturnType<typeof listProducts>>>
+export type ListProductsQueryError = ErrorType<UnavailableResponse>
+
+
+/**
+ * @summary Database-backed Wasl catalog
+ */
+
+export function useListProducts<TData = Awaited<ReturnType<typeof listProducts>>, TError = ErrorType<UnavailableResponse>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listProducts>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListProductsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetProductUrl = (id: string,) => {
+
+
+
+
+  return `/api/products/${id}`
+}
+
+export const getProduct = async (id: string, options?: Parameters<typeof customFetch>[1]): Promise<Product> => {
+
+  return customFetch<Product>(getGetProductUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetProductQueryKey = (id: string,) => {
+    return [
+    `/api/products/${id}`
+    ] as const;
+    }
+
+
+export const getGetProductQueryOptions = <TData = Awaited<ReturnType<typeof getProduct>>, TError = ErrorType<InvalidResponse | NotFoundResponse | UnavailableResponse>>(id: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getProduct>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetProductQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProduct>>> = ({ signal }) => getProduct(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getProduct>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetProductQueryResult = NonNullable<Awaited<ReturnType<typeof getProduct>>>
+export type GetProductQueryError = ErrorType<InvalidResponse | NotFoundResponse | UnavailableResponse>
+
+
+
+export function useGetProduct<TData = Awaited<ReturnType<typeof getProduct>>, TError = ErrorType<InvalidResponse | NotFoundResponse | UnavailableResponse>>(
+ id: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getProduct>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetProductQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getSignupUrl = () => {
+
+
+
+
+  return `/api/auth/signup`
+}
+
+export const signup = async (signupInput: SignupInput, options?: Parameters<typeof customFetch>[1]): Promise<AuthResult> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<AuthResult>(getSignupUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(signupInput)
+  }
+);}
+
+
+
+
+
+export const getSignupMutationKey = () => ['signup'] as const;
+
+export const getSignupMutationOptions = <TError = ErrorType<InvalidResponse | UnavailableResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof signup>>, TError,SignupMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof signup>>, TError,SignupMutationVariables, TContext> => {
+
+const mutationKey = getSignupMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof signup>>, SignupMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  signup(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SignupMutationResult = NonNullable<Awaited<ReturnType<typeof signup>>>
+    export type SignupMutationBody = BodyType<SignupInput>
+    export type SignupMutationError = ErrorType<InvalidResponse | UnavailableResponse>
+    export type SignupMutationVariables = {data: BodyType<SignupInput>}
+
+    export const useSignup = <TError = ErrorType<InvalidResponse | UnavailableResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof signup>>, TError,SignupMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof signup>>,
+        TError,
+        SignupMutationVariables,
+        TContext
+      > => {
+      return useMutation(getSignupMutationOptions(options));
+    }
+
+export const getLoginUrl = () => {
+
+
+
+
+  return `/api/auth/login`
+}
+
+export const login = async (loginInput: LoginInput, options?: Parameters<typeof customFetch>[1]): Promise<AuthResult> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<AuthResult>(getLoginUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(loginInput)
+  }
+);}
+
+
+
+
+
+export const getLoginMutationKey = () => ['login'] as const;
+
+export const getLoginMutationOptions = <TError = ErrorType<UnauthorizedResponse | InvalidResponse | UnavailableResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof login>>, TError,LoginMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof login>>, TError,LoginMutationVariables, TContext> => {
+
+const mutationKey = getLoginMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof login>>, LoginMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  login(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type LoginMutationResult = NonNullable<Awaited<ReturnType<typeof login>>>
+    export type LoginMutationBody = BodyType<LoginInput>
+    export type LoginMutationError = ErrorType<UnauthorizedResponse | InvalidResponse | UnavailableResponse>
+    export type LoginMutationVariables = {data: BodyType<LoginInput>}
+
+    export const useLogin = <TError = ErrorType<UnauthorizedResponse | InvalidResponse | UnavailableResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof login>>, TError,LoginMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof login>>,
+        TError,
+        LoginMutationVariables,
+        TContext
+      > => {
+      return useMutation(getLoginMutationOptions(options));
+    }
+
+export const getCurrentUserUrl = () => {
+
+
+
+
+  return `/api/auth/me`
+}
+
+export const currentUser = async ( options?: Parameters<typeof customFetch>[1]): Promise<CurrentUser200> => {
+
+  return customFetch<CurrentUser200>(getCurrentUserUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getCurrentUserQueryKey = () => {
+    return [
+    `/api/auth/me`
+    ] as const;
+    }
+
+
+export const getCurrentUserQueryOptions = <TData = Awaited<ReturnType<typeof currentUser>>, TError = ErrorType<UnauthorizedResponse | UnavailableResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof currentUser>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCurrentUserQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof currentUser>>> = ({ signal }) => currentUser({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof currentUser>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type CurrentUserQueryResult = NonNullable<Awaited<ReturnType<typeof currentUser>>>
+export type CurrentUserQueryError = ErrorType<UnauthorizedResponse | UnavailableResponse>
+
+
+
+export function useCurrentUser<TData = Awaited<ReturnType<typeof currentUser>>, TError = ErrorType<UnauthorizedResponse | UnavailableResponse>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof currentUser>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getCurrentUserQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetGiftUrl = (token: string,) => {
+
+
+
+
+  return `/api/gifts/${token}`
+}
+
+/**
+ * Bearer-access gift link. Never includes order IDs, recipient, quantities, prices, user IDs, or delivery details.
+ */
+export const getGift = async (token: string, options?: Parameters<typeof customFetch>[1]): Promise<PublicGift> => {
+
+  return customFetch<PublicGift>(getGetGiftUrl(token),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetGiftQueryKey = (token: string,) => {
+    return [
+    `/api/gifts/${token}`
+    ] as const;
+    }
+
+
+export const getGetGiftQueryOptions = <TData = Awaited<ReturnType<typeof getGift>>, TError = ErrorType<NotFoundResponse | InvalidResponse | UnavailableResponse>>(token: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getGift>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetGiftQueryKey(token);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getGift>>> = ({ signal }) => getGift(token, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: token !== null && token !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getGift>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetGiftQueryResult = NonNullable<Awaited<ReturnType<typeof getGift>>>
+export type GetGiftQueryError = ErrorType<NotFoundResponse | InvalidResponse | UnavailableResponse>
+
+
+
+export function useGetGift<TData = Awaited<ReturnType<typeof getGift>>, TError = ErrorType<NotFoundResponse | InvalidResponse | UnavailableResponse>>(
+ token: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getGift>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetGiftQueryOptions(token,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getHealthCheckUrl = () => {
 
@@ -131,6 +599,80 @@ export function useHealthCheck<TData = Awaited<ReturnType<typeof healthCheck>>, 
 
 
 
+export const getListMyOrdersUrl = () => {
+
+
+
+
+  return `/api/orders`
+}
+
+/**
+ * Filters exclusively by the authenticated JWT identity; ignores client user IDs.
+ */
+export const listMyOrders = async ( options?: Parameters<typeof customFetch>[1]): Promise<OwnerOrder[]> => {
+
+  return customFetch<OwnerOrder[]>(getListMyOrdersUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListMyOrdersQueryKey = () => {
+    return [
+    `/api/orders`
+    ] as const;
+    }
+
+
+export const getListMyOrdersQueryOptions = <TData = Awaited<ReturnType<typeof listMyOrders>>, TError = ErrorType<UnauthorizedResponse | UnavailableResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listMyOrders>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListMyOrdersQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listMyOrders>>> = ({ signal }) => listMyOrders({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listMyOrders>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListMyOrdersQueryResult = NonNullable<Awaited<ReturnType<typeof listMyOrders>>>
+export type ListMyOrdersQueryError = ErrorType<UnauthorizedResponse | UnavailableResponse>
+
+
+
+export function useListMyOrders<TData = Awaited<ReturnType<typeof listMyOrders>>, TError = ErrorType<UnauthorizedResponse | UnavailableResponse>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listMyOrders>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListMyOrdersQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
 export const getPlaceOrderUrl = () => {
 
 
@@ -140,7 +682,7 @@ export const getPlaceOrderUrl = () => {
 }
 
 /**
- * Saves an order and private delivery details, then returns a public confirmation.
+ * Atomically reserves stock and saves a pending order with private delivery details. All prices and totals are server calculated in fils. No payment is taken.
  * @summary Place an order
  */
 export const placeOrder = async (orderInput: OrderInput, options?: Parameters<typeof customFetch>[1]): Promise<OrderConfirmation> => {
@@ -174,7 +716,7 @@ return customFetch<OrderConfirmation>(getPlaceOrderUrl(),
 
 export const getPlaceOrderMutationKey = () => ['placeOrder'] as const;
 
-export const getPlaceOrderMutationOptions = <TError = ErrorType<ApiError>,
+export const getPlaceOrderMutationOptions = <TError = ErrorType<ApiError | UnauthorizedResponse | InvalidResponse | UnavailableResponse>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof placeOrder>>, TError,PlaceOrderMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
 ): UseMutationOptions<Awaited<ReturnType<typeof placeOrder>>, TError,PlaceOrderMutationVariables, TContext> => {
 
@@ -203,13 +745,13 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type PlaceOrderMutationResult = NonNullable<Awaited<ReturnType<typeof placeOrder>>>
     export type PlaceOrderMutationBody = BodyType<OrderInput>
-    export type PlaceOrderMutationError = ErrorType<ApiError>
+    export type PlaceOrderMutationError = ErrorType<ApiError | UnauthorizedResponse | InvalidResponse | UnavailableResponse>
     export type PlaceOrderMutationVariables = {data: BodyType<OrderInput>}
 
     /**
  * @summary Place an order
  */
-export const usePlaceOrder = <TError = ErrorType<ApiError>,
+export const usePlaceOrder = <TError = ErrorType<ApiError | UnauthorizedResponse | InvalidResponse | UnavailableResponse>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof placeOrder>>, TError,PlaceOrderMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof placeOrder>>,
@@ -219,3 +761,4 @@ export const usePlaceOrder = <TError = ErrorType<ApiError>,
       > => {
       return useMutation(getPlaceOrderMutationOptions(options));
     }
+

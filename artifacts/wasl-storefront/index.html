@@ -4,13 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Wasl tech accessories, made for Kuwait. Same-day delivery across all six governorates.">
-    <meta name="theme-color" content="#f6fafe">
+    <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
     <title>Wasl — Tech that keeps up</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./styles.css">
-    <script src="./script.js" defer></script>
+    <meta name="referrer" content="no-referrer">
+    <meta name="wasl-base" content="%BASE_URL%">
+    <meta name="color-scheme" content="light dark">
+    <link rel="icon" type="image/svg+xml" href="%BASE_URL%favicon.svg">
+    <script>
+      document.documentElement.classList.toggle("gift-route", /\/gift\/[^/]+\/?$/.test(location.pathname));
+    </script>
+    <link rel="stylesheet" href="%BASE_URL%styles/tokens.css">
+    <link rel="stylesheet" href="%BASE_URL%styles.css">
+    <script type="module" src="%BASE_URL%script.js"></script>
   </head>
   <body>
     <header class="site-header">
@@ -30,46 +36,55 @@
           <button class="icon-button search-jump" id="search-focus" type="button" aria-label="Search products" data-testid="search-focus"><svg viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.5"/><path d="m16 16 4.4 4.4"/></svg></button>
           <button class="icon-button favorite-nav" id="favorites-toggle" type="button" aria-label="Show favorites" aria-pressed="false" data-testid="favorites-toggle"><svg viewBox="0 0 24 24"><path d="M20.8 8.7c0 5.1-8.8 11-8.8 11s-8.8-5.9-8.8-11a4.7 4.7 0 0 1 8.8-2.2 4.7 4.7 0 0 1 8.8 2.2Z"/></svg><span class="count-badge" id="favorite-count">0</span></button>
           <button class="cart-trigger" id="cart-open" type="button" aria-label="Open shopping cart" data-testid="cart-open"><svg viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 9V6a3 3 0 0 1 6 0v3"/></svg><span class="cart-trigger-total" id="header-total">KWD 0.000</span><span class="count-badge cart-count" id="cart-count">0</span></button>
+          <div class="account-nav" id="account-nav">
+            <a class="account-link" href="#login" data-auth-link="login">Log in</a>
+          </div>
           <button class="mobile-menu-toggle icon-button" id="mobile-menu-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
         </div>
       </div>
       <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile navigation">
         <a href="#products">Products</a><a href="#why-wasl">Why Wasl</a><a href="#contact">Contact</a><a href="#heat-tested">Kuwait heat tested</a>
+        <div class="mobile-account" id="mobile-account"></div>
       </nav>
     </header>
+
+    <aside class="discount-widget" id="discount-widget" aria-label="Optional 10 percent discount">
+      <button class="discount-tab" id="discount-tab" type="button" aria-controls="discount-modal-layer" aria-expanded="false" aria-label="Open optional 10 percent discount offer">
+        <span class="discount-tab-mark">10%</span>
+        <span class="discount-tab-copy">OFF YOUR ORDER</span>
+      </button>
+      <button class="discount-dismiss" id="discount-dismiss" type="button" aria-label="Remove the discount tag">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+      </button>
+    </aside>
 
     <main id="store-view">
       <div class="delivery-ribbon"><span class="status-dot"></span> Order before 4 PM for same-day delivery across Kuwait <span class="ribbon-separator">·</span> All 6 governorates</div>
       <section class="hero" aria-labelledby="hero-title">
         <div class="hero-grid container">
           <div class="hero-copy">
-            <div class="eyebrow heat-eyebrow"><span class="status-dot"></span> SHUWAIKH HEAT CHAMBER VALIDATED <span class="eyebrow-temp">50°C</span></div>
+            <div class="eyebrow heat-eyebrow"><span class="status-dot"></span> Heat-chamber tested at 50°C</div>
             <h1 id="hero-title">Connect your day.<br><span>Stay charged.</span></h1>
-            <p class="hero-lede">Chargers, cables and everyday gear built for Kuwait heat. Tested at 50°C, ready for wherever the day takes you.</p>
+            <p class="hero-lede">Chargers, cables and everyday gear built for Kuwait summers. Delivered the same day.</p>
             <div class="hero-actions">
-              <a class="button button-primary" href="#products">Shop now <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>
-              <a class="button button-soft" href="#why-wasl"><span class="seal-icon" aria-hidden="true">✓</span> Why Wasl?</a>
-            </div>
-            <div class="hero-metrics">
-              <div><strong>65W</strong><span>GaN fast power</span></div>
-              <div><strong class="orange">50°C</strong><span>Thermal tested</span></div>
-              <div><strong class="teal">3–4 hrs</strong><span>Kuwait express</span></div>
+              <a class="button button-primary" href="#products">Shop the collection</a>
+              <a class="text-link" href="#why-wasl">Why Wasl <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></a>
             </div>
           </div>
           <div class="hero-visual-wrap">
             <div class="hero-visual">
-              <div class="visual-meta"><span><i class="live-dot"></i> GaN III architecture</span><span class="temp-label">Delta T: Stable &lt; 42°C</span></div>
               <div class="tech-stage">
-                <div class="stage-grid"></div>
-                <div class="thermal-lines" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
-                <div class="charger-art" aria-label="Technical illustration of a fast charger and phone">
-                  <div class="charger-device"><div class="charger-top"><i></i><b>65W GaN</b></div><span class="charger-port"></span><span class="charger-port second"></span><span class="charger-pin"></span><span class="charger-pin pin-two"></span></div>
-                  <svg class="connection-cable" viewBox="0 0 140 130" aria-hidden="true"><path d="M4 6C94 0 48 116 134 111" fill="none" stroke="url(#cable)" stroke-width="8" stroke-linecap="round" stroke-dasharray="1 3"/><defs><linearGradient id="cable" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d9400a"/><stop offset=".5" stop-color="#0b1f33"/><stop offset="1" stop-color="#0b7f7c"/></linearGradient></defs></svg>
-                  <div class="phone-art"><div class="phone-screen"><span class="charge-orb">ϟ</span><small>98% FAST</small></div><i></i></div>
-                  <div class="telemetry"><small>KUWAIT RUN TIME</small><strong>50°C / NO DERATE</strong></div>
+                <div class="charger-art" role="img" aria-label="Illustration of a Wasl 65W charger connected to a phone">
+                  <div class="charger-device"><div class="charger-top"><i></i><b>65W GaN</b></div><span class="charger-port"></span><span class="charger-port second"></span></div>
+                  <svg class="connection-cable" viewBox="0 0 140 130" aria-hidden="true"><path d="M4 6C94 0 48 116 134 111" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"/></svg>
+                  <div class="phone-art"><div class="phone-screen"><svg class="charge-orb" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3 6 13h5l-1 8 7-10h-5l1-8Z"/></svg><small>98%</small></div></div>
                 </div>
               </div>
-              <div class="visual-foot"><span><b class="check-mark">✓</b> Pure copper core</span><span><b class="orange-mark">⌁</b> Intelligent thermal guard</span></div>
+            </div>
+            <div class="hero-metrics">
+              <div><strong>65W</strong><span>GaN fast power</span></div>
+              <div><strong>50°C</strong><span>Thermal tested</span></div>
+              <div><strong>3–4 hrs</strong><span>Kuwait express</span></div>
             </div>
           </div>
         </div>
@@ -96,7 +111,7 @@
           <span class="commercial-duration">THE WASL FILM · 10 SECONDS</span>
         </div>
         <div class="commercial-player">
-          <video id="wasl-commercial" controls playsinline preload="none" poster="api/media/commercial-poster.jpg" aria-label="Wasl tech accessories commercial">
+          <video id="wasl-commercial" controls playsinline preload="none" data-poster="api/media/commercial-poster.jpg" aria-label="Wasl tech accessories commercial">
             <source src="api/media/commercial.mp4" type="video/mp4">
             Your browser does not support video playback. <a href="api/media/commercial.mp4">Watch the Wasl commercial.</a>
           </video>
@@ -106,8 +121,8 @@
 
       <section class="catalog container" id="products">
         <div class="catalog-heading">
-          <div><span class="section-kicker">DIRECT HARDWARE INVENTORY</span><h2>Engineered for everyday power</h2><p class="catalog-subtitle" id="results-summary" aria-live="polite">Eight essentials, ready to ship from Kuwait.</p></div>
-          <label class="search-field"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.5"/><path d="m16 16 4.4 4.4"/></svg><input id="product-search" type="search" placeholder="Search chargers, cables, mounts..." autocomplete="off" aria-label="Search products" data-testid="product-search"><button id="clear-search" type="button" aria-label="Clear search" hidden>×</button></label>
+          <div><span class="section-kicker">DIRECT HARDWARE INVENTORY</span><h2>Engineered for everyday power</h2><p class="catalog-subtitle" id="results-summary" aria-live="polite">Loading the collection from our Kuwait hub...</p></div>
+          <label class="search-field"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.5"/><path d="m16 16 4.4 4.4"/></svg><input id="product-search" type="search" placeholder="Search chargers, cables, mounts..." autocomplete="off" aria-label="Search products" data-testid="product-search"><button id="clear-search" type="button" aria-label="Clear search" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button></label>
         </div>
         <div class="catalog-controls">
           <div class="category-chips" id="category-chips" role="group" aria-label="Filter by category">
@@ -119,11 +134,27 @@
             <button class="category-chip" type="button" data-category="Desk" aria-pressed="false">Desk</button>
             <button class="category-chip" type="button" data-category="Car" aria-pressed="false">Car</button>
           </div>
+        </div>
+        <div class="mood-bar" role="group" aria-label="Filter by mood">
+          <span class="mood-label">Shop by mood</span>
+          <div class="mood-chips" id="mood-chips">
+            <button class="mood-chip active" type="button" data-mood="all" aria-pressed="true">Any mood</button>
+            <button class="mood-chip" type="button" data-mood="Cozy" aria-pressed="false" data-tone="cozy"><i aria-hidden="true"></i>Cozy</button>
+            <button class="mood-chip" type="button" data-mood="Energetic" aria-pressed="false" data-tone="energetic"><i aria-hidden="true"></i>Energetic</button>
+            <button class="mood-chip" type="button" data-mood="Focus" aria-pressed="false" data-tone="focus"><i aria-hidden="true"></i>Focus</button>
+            <button class="mood-chip" type="button" data-mood="Celebrate" aria-pressed="false" data-tone="celebrate"><i aria-hidden="true"></i>Celebrate</button>
+          </div>
           <span class="stock-note"><i class="status-dot"></i> Kuwait logistics hub: ready to dispatch</span>
         </div>
-        <div class="product-grid" id="product-grid" aria-live="polite"></div>
+        <div class="product-grid" id="product-grid" aria-live="polite" aria-busy="true"></div>
+        <div class="empty-state catalog-state" id="catalog-error" role="alert" hidden>
+          <div class="empty-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 8v5m0 3.5v.5"/><circle cx="12" cy="12" r="9"/></svg></div><h3>We couldn't load the collection</h3><p id="catalog-error-copy">Our inventory service didn't respond. Your cart is safe.</p><button class="button button-primary" id="catalog-retry" type="button">Try again</button>
+        </div>
+        <div class="empty-state catalog-state" id="catalog-empty" hidden>
+          <div class="empty-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 7h18v13H3zM3 7l3-4h12l3 4M9 11h6"/></svg></div><h3>The shelves are being restocked</h3><p>No products are listed right now. Check back shortly.</p>
+        </div>
         <div class="empty-state" id="no-results" hidden>
-          <div class="empty-mark" aria-hidden="true">⌕</div><h3>No products match that search</h3><p>Try another term or clear the filters to see all Wasl gear.</p><button class="button button-primary" id="reset-filters" type="button">View all products</button>
+          <div class="empty-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.5"/><path d="m16 16 4.4 4.4"/></svg></div><h3>No products match that search</h3><p>Try another term or clear the filters to see all Wasl gear.</p><button class="button button-primary" id="reset-filters" type="button">View all products</button>
         </div>
       </section>
 
@@ -131,11 +162,11 @@
         <div class="container heat-content">
           <div class="heat-reading"><span>DESERT ENGINEERING STANDARD</span><strong>50<span>°C</span></strong><div class="heat-status"><i class="live-dot"></i> KUWAIT SUMMER VALIDATION</div><small>LAB TEST NO. 07 · NON-STOP 4 HR</small></div>
           <div class="heat-copy"><span class="section-kicker light-kicker">BUILT FOR THE KUWAITI SUMMER</span><h2>Good gear shouldn't quit when it gets hot.</h2><p>Standard cables melt, cheap chargers throttle power, and rubber suction mounts drop off the windshield in July heat. Every Wasl accessory is engineered to keep its cool through Kuwait's longest summers.</p>
-            <div class="heat-specs"><article><span class="spec-symbol">◉</span><strong>V0 Fire Shell</strong><p>Flame-retardant casing that won't deform in your car.</p></article><article><span class="spec-symbol teal-spec">⌁</span><strong>Thermal fins</strong><p>Internal graphite fins spread heat quietly.</p></article><article><span class="spec-symbol">⌖</span><strong>Gold-plated pins</strong><p>Corrosion-resistant contacts for years of reliable charging.</p></article></div>
+            <div class="heat-specs"><article><span class="spec-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 20 6v5c0 5-3.4 8.2-8 10-4.6-1.8-8-5-8-10V6l8-3Z"/></svg></span><strong>V0 Fire Shell</strong><p>Flame-retardant casing that won't deform in your car.</p></article><article><span class="spec-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 4v16M12 4v16M18 4v16"/></svg></span><strong>Thermal fins</strong><p>Internal graphite fins spread heat quietly.</p></article><article><span class="spec-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg></span><strong>Gold-plated pins</strong><p>Corrosion-resistant contacts for years of reliable charging.</p></article></div>
           </div>
         </div>
       </section>
-      <section class="newsletter container"><div class="newsletter-mark">W<span>.</span></div><div><span class="section-kicker">A BETTER DAILY CHARGE</span><h2>Small upgrades. Better days.</h2><p>Locally stocked essentials, dependable delivery, and no guesswork at checkout.</p></div><a href="#products" class="button button-soft">Explore the collection <svg viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a></section>
+      <section class="newsletter container"><div><span class="section-kicker">A BETTER DAILY CHARGE</span><h2>Small upgrades. Better days.</h2><p>Locally stocked essentials, dependable delivery, and no guesswork at checkout.</p></div><a href="#products" class="button button-primary">Explore the collection</a></section>
     </main>
 
     <main class="checkout-view" id="checkout-view" hidden aria-labelledby="checkout-title">
@@ -155,6 +186,13 @@
             <span><strong>Secure order checkout</strong><small>No payment is taken. No payment details needed.</small></span>
           </div>
         </div>
+        <section class="checkout-state-card" id="checkout-auth" hidden aria-labelledby="checkout-auth-title">
+          <div class="checkout-state-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
+          <span class="section-kicker">ONE QUICK STEP</span>
+          <h2 id="checkout-auth-title">Log in to place your order</h2>
+          <p>Your cart is saved on this device. Sign in so your order history stays private to you.</p>
+          <div class="state-actions"><a class="button button-primary" href="#login?next=checkout">Log in</a><a class="button button-soft" href="#signup?next=checkout">Create account</a></div>
+        </section>
         <div class="checkout-layout" id="checkout-content">
           <section class="checkout-panel checkout-form-panel" aria-labelledby="delivery-title">
             <div class="checkout-panel-heading">
@@ -203,6 +241,30 @@
                   <textarea id="checkout-instructions" name="instructions" rows="3" placeholder="Landmark, floor, or other helpful details"></textarea>
                 </label>
               </div>
+              <section class="gift-panel" aria-labelledby="gift-toggle-label">
+                <label class="gift-toggle" id="gift-toggle-label" for="checkout-gift">
+                  <input type="checkbox" id="checkout-gift" name="isGift">
+                  <span class="gift-switch" aria-hidden="true"><span></span></span>
+                  <span class="gift-toggle-copy"><strong>This is a gift</strong><small>Add a note and a wrap. They'll get a private link to unwrap it.</small></span>
+                </label>
+                <div class="gift-fields" id="gift-fields" hidden>
+                  <label class="checkout-field field-wide" for="checkout-gift-to">Recipient name <span aria-hidden="true">*</span>
+                    <input id="checkout-gift-to" name="giftTo" maxlength="80" autocomplete="off" aria-describedby="checkout-gift-to-error">
+                    <small class="field-error" id="checkout-gift-to-error"></small>
+                  </label>
+                  <label class="checkout-field field-wide" for="checkout-gift-message">Personal message <span class="optional-label" id="gift-count">0 / 300</span>
+                    <textarea id="checkout-gift-message" name="giftMessage" rows="3" maxlength="300" placeholder="A few words they'll read when they unwrap it" aria-describedby="checkout-gift-message-error gift-count"></textarea>
+                    <small class="field-error" id="checkout-gift-message-error"></small>
+                  </label>
+                  <fieldset class="wrap-options">
+                    <legend>Wrapping</legend>
+                    <label class="wrap-option" data-wrap="Classic"><input type="radio" name="giftWrap" value="Classic" checked><span class="wrap-swatch" aria-hidden="true"></span><span>Classic</span></label>
+                    <label class="wrap-option" data-wrap="Eid"><input type="radio" name="giftWrap" value="Eid"><span class="wrap-swatch" aria-hidden="true"></span><span>Eid</span></label>
+                    <label class="wrap-option" data-wrap="Birthday"><input type="radio" name="giftWrap" value="Birthday"><span class="wrap-swatch" aria-hidden="true"></span><span>Birthday</span></label>
+                    <label class="wrap-option" data-wrap="Minimal"><input type="radio" name="giftWrap" value="Minimal"><span class="wrap-swatch" aria-hidden="true"></span><span>Minimal</span></label>
+                  </fieldset>
+                </div>
+              </section>
               <p class="checkout-submit-error" id="checkout-submit-error" role="alert" hidden></p>
               <p class="privacy-note"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 20 6v5c0 5-3.4 8.2-8 10-4.6-1.8-8-5-8-10V6l8-3Z"/><path d="M9 12h6"/></svg> Delivery details are stored with your order for fulfillment and are not shown on the confirmation screen. No payment details are collected.</p>
               <button class="button button-primary place-order-button" type="submit">Place order <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button>
@@ -239,15 +301,69 @@
           <span class="section-kicker">ORDER CONFIRMED</span>
           <h2 id="checkout-success-title">Order saved<span>.</span></h2>
           <p id="order-confirmation-copy">Your order is saved. Reference: <strong id="order-reference"></strong>. Total: <strong id="order-confirmation-total"></strong>. Your delivery details are stored privately for fulfillment. No payment was taken.</p>
-          <a class="button button-primary" href="#products">Return to shopping</a>
+          <div class="success-gift" id="success-gift" hidden>
+            <strong>Your gift link is ready</strong>
+            <p>Share it with the recipient. Anyone with the link can see the sender name, message and item names.</p>
+            <button class="button button-soft" type="button" id="success-copy-gift">Copy gift link</button>
+          </div>
+          <div class="state-actions"><a class="button button-primary" href="#products">Return to shopping</a><a class="button button-soft" href="#orders">View my orders</a></div>
         </section>
       </div>
+    </main>
+
+    <main class="auth-view" id="auth-view" hidden aria-labelledby="auth-title">
+      <div class="container auth-container">
+        <div class="auth-aside" aria-hidden="true">
+          <span class="section-kicker light-kicker">WASL ACCOUNT</span>
+          <strong class="auth-aside-title">Your orders, kept private. Your gifts, wrapped properly.</strong>
+          <ul><li>Order history only you can see</li><li>Send gifts with a personal note</li><li>Your cart waits while you sign in</li></ul>
+          
+        </div>
+        <section class="auth-card">
+          <a class="checkout-back-link" href="#products"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m6 7-7-7 7-7"/></svg> Return to store</a>
+          <span class="section-kicker" id="auth-kicker">WELCOME BACK</span>
+          <h1 id="auth-title" tabindex="-1">Log in<span>.</span></h1>
+          <p class="auth-lede" id="auth-lede">Pick up where you left off.</p>
+          <form id="auth-form" novalidate>
+            <label class="checkout-field" for="auth-name" id="auth-name-field">Full name
+              <input id="auth-name" name="name" autocomplete="name" maxlength="80" aria-describedby="auth-name-error">
+              <small class="field-error" id="auth-name-error"></small>
+            </label>
+            <label class="checkout-field" for="auth-email">Email
+              <input id="auth-email" name="email" type="email" autocomplete="email" aria-describedby="auth-email-error">
+              <small class="field-error" id="auth-email-error"></small>
+            </label>
+            <label class="checkout-field" for="auth-password">Password
+              <input id="auth-password" name="password" type="password" autocomplete="current-password" aria-describedby="auth-password-hint auth-password-error">
+              <small class="field-hint" id="auth-password-hint">At least 8 characters.</small>
+              <small class="field-error" id="auth-password-error"></small>
+            </label>
+            <p class="checkout-submit-error" id="auth-error" role="alert" hidden></p>
+            <button class="button button-primary auth-submit" id="auth-submit" type="submit">Log in</button>
+          </form>
+          <p class="auth-switch" id="auth-switch">New to Wasl? <a href="#signup">Create an account</a></p>
+        </section>
+      </div>
+    </main>
+
+    <main class="orders-view" id="orders-view" hidden aria-labelledby="orders-title">
+      <div class="container orders-container">
+        <a class="checkout-back-link" href="#products"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m6 7-7-7 7-7"/></svg> Return to store</a>
+        <div class="checkout-heading">
+          <div><span class="section-kicker">YOUR ACCOUNT</span><h1 id="orders-title" tabindex="-1">My orders<span>.</span></h1><p id="orders-sub">Every order you've placed, visible only to you.</p></div>
+        </div>
+        <div id="orders-content" aria-live="polite"></div>
+      </div>
+    </main>
+
+    <main class="gift-view" id="gift-view" hidden aria-labelledby="gift-title">
+      <div class="gift-stage" id="gift-stage"></div>
     </main>
 
     <footer class="site-footer" id="contact">
       <div class="container footer-main">
         <div class="footer-brand"><a class="brand footer-logo" href="#"><span>WASL<span class="brand-period">.</span></span></a><strong>Connect your day. Stay charged.</strong><p>Engineered consumer tech accessories built to withstand extreme GCC heat and relentless everyday usage.</p></div>
-        <div class="footer-column"><h3>Customer support</h3><a href="tel:+96522008900"><span>↗</span> WhatsApp: +965 2200 8900</a><p><span>◷</span> Same-day: Orders before 4 PM</p><p><span>⌖</span> All 6 Kuwait Governorates</p></div>
+        <div class="footer-column"><h3>Customer support</h3><a href="tel:+96522008900">WhatsApp: +965 2200 8900</a><p>Same-day: Orders before 4 PM</p><p>All 6 Kuwait Governorates</p></div>
         <div class="footer-column"><h3>Categories</h3><a href="#products" data-footer-category="Charging">GaN Fast Chargers</a><a href="#products" data-footer-category="Cables">Braided Armored Cables</a><a href="#products" data-footer-category="Car">Magnetic Car Mounts</a><a href="#products" data-footer-category="Charging">Power Banks &amp; MagSafe</a></div>
         <div class="footer-column"><h3>Legal &amp; guarantee</h3><p>12-month replacement guarantee</p><p>Lab tested at 50°C in Kuwait</p><a href="#why-wasl">Privacy policy</a><a href="#why-wasl">Terms of service</a></div>
       </div>
@@ -267,15 +383,6 @@
     </section>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <div class="sr-only" id="announcement" aria-live="polite"></div>
-    <aside class="discount-widget" id="discount-widget" aria-label="Optional 10 percent discount">
-      <button class="discount-tab" id="discount-tab" type="button" aria-controls="discount-modal-layer" aria-expanded="false" aria-label="Open optional 10 percent discount offer">
-        <span class="discount-tab-mark">10%</span>
-        <span class="discount-tab-copy">OFF YOUR ORDER</span>
-      </button>
-      <button class="discount-dismiss" id="discount-dismiss" type="button" aria-label="Remove the discount tag">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
-      </button>
-    </aside>
     <div class="discount-modal-layer" id="discount-modal-layer" hidden>
       <section class="discount-panel" id="discount-panel" role="dialog" aria-modal="true" aria-labelledby="discount-title" aria-describedby="discount-lede">
         <div class="discount-panel-head">
