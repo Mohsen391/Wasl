@@ -595,6 +595,10 @@ input::placeholder, textarea::placeholder { color: var(--text-secondary); opacit
 .order-total { font-size: var(--text-s); }
 .order-total strong { color: var(--text); font-size: var(--text-m); font-weight: 600; font-variant-numeric: tabular-nums; margin-inline-start: 4px; }
 .copy-gift { min-height: var(--tap); }
+.order-gift-controls { display: grid; gap: var(--s1); width: 100%; }
+.order-gift-actions { display: flex; flex-wrap: wrap; gap: var(--s1); }
+.order-gift-status, .order-gift-feedback { font-size: .85rem; }
+.order-gift-feedback:empty { display: none; }
 .copy-gift svg { width: 16px; height: 16px; }
 
 /* ---------- Gift page ---------- */

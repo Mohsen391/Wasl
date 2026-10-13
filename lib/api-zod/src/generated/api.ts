@@ -163,7 +163,7 @@ export const ListMyOrdersResponseItem = zod.object({
   "status": zod.enum(['pending', 'paid']),
   "createdAt": zod.coerce.date(),
   "isGift": zod.boolean(),
-  "giftToken": zod.string().optional()
+  "giftToken": zod.string().nullish()
 })
 export const ListMyOrdersResponse = zod.array(ListMyOrdersResponseItem)
 
@@ -241,6 +241,82 @@ export const PlaceOrderResponse = zod.object({
   "subtotalFils": zod.number().int().min(placeOrderResponseSubtotalFilsMin).describe('Amount in fils (one thousandth of a Kuwaiti dinar).'),
   "discountFils": zod.number().int().min(placeOrderResponseDiscountFilsMin).describe('Amount in fils (one thousandth of a Kuwaiti dinar).'),
   "totalFils": zod.number().int().min(placeOrderResponseTotalFilsMin).describe('Amount in fils (one thousandth of a Kuwaiti dinar).')
+})
+
+
+/**
+ * Requires explicit confirmation and the last seen token. Ownership comes only from verified Bearer credentials. Does not change the order.
+ * @summary Disable an owned gift link
+ */
+export const revokeGiftLinkPathIdRegExp = new RegExp('^[a-fA-F0-9]{24}$');
+
+
+export const RevokeGiftLinkParams = zod.object({
+  "id": zod.coerce.string().regex(revokeGiftLinkPathIdRegExp)
+})
+
+export const revokeGiftLinkBodyExpectedTokenRegExp = new RegExp('^[a-f0-9]{64}$');
+
+
+export const RevokeGiftLinkBody = zod.object({
+  "confirmed": zod.literal(true),
+  "expectedToken": zod.string().regex(revokeGiftLinkBodyExpectedTokenRegExp).nullable()
+})
+
+export const RevokeGiftLinkResponse = zod.object({
+  "id": zod.string(),
+  "orderReference": zod.string(),
+  "items": zod.array(zod.object({
+  "product": zod.string(),
+  "name": zod.string(),
+  "price": zod.number().int(),
+  "quantity": zod.number().int()
+})),
+  "total": zod.number().int(),
+  "subtotalFils": zod.number().int(),
+  "discountFils": zod.number().int(),
+  "status": zod.enum(['pending', 'paid']),
+  "createdAt": zod.coerce.date(),
+  "isGift": zod.boolean(),
+  "giftToken": zod.string().nullish()
+})
+
+
+/**
+ * Atomically invalidates the old link and issues a fresh random token. A null expectedToken creates a link for a disabled gift. Requires explicit confirmation.
+ * @summary Replace or create an owned gift link
+ */
+export const replaceGiftLinkPathIdRegExp = new RegExp('^[a-fA-F0-9]{24}$');
+
+
+export const ReplaceGiftLinkParams = zod.object({
+  "id": zod.coerce.string().regex(replaceGiftLinkPathIdRegExp)
+})
+
+export const replaceGiftLinkBodyExpectedTokenRegExp = new RegExp('^[a-f0-9]{64}$');
+
+
+export const ReplaceGiftLinkBody = zod.object({
+  "confirmed": zod.literal(true),
+  "expectedToken": zod.string().regex(replaceGiftLinkBodyExpectedTokenRegExp).nullable()
+})
+
+export const ReplaceGiftLinkResponse = zod.object({
+  "id": zod.string(),
+  "orderReference": zod.string(),
+  "items": zod.array(zod.object({
+  "product": zod.string(),
+  "name": zod.string(),
+  "price": zod.number().int(),
+  "quantity": zod.number().int()
+})),
+  "total": zod.number().int(),
+  "subtotalFils": zod.number().int(),
+  "discountFils": zod.number().int(),
+  "status": zod.enum(['pending', 'paid']),
+  "createdAt": zod.coerce.date(),
+  "isGift": zod.boolean(),
+  "giftToken": zod.string().nullish()
 })
 
 

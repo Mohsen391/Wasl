@@ -3,7 +3,8 @@ import mongoose from "mongoose";
 import { Router, type IRouter } from "express";
 import { rateLimit } from "express-rate-limit";
 import { connectDB } from "../lib/db";
-import { orderInput } from "../lib/validation";
+import { orderInput, objectId } from "../lib/validation";
+import { RevokeGiftLinkBody, ReplaceGiftLinkBody } from "@workspace/api-zod";
 import { Order, ownerOrder } from "../models/Order";
 import { Product } from "../models/Product";
 import { authenticate } from "../middlewares/auth";
@@ -17,6 +18,43 @@ router.get("/orders", authenticate, async (_req, res) => {
   } catch { res.status(503).json({ error: "We couldn't load your orders. Please try again." }); }
 });
 const limit = rateLimit({ windowMs: 60 * 1000, limit: 30, standardHeaders: "draft-8", legacyHeaders: false, message: { error: "Too many orders. Please try again in a minute." } });
+const giftLimit = rateLimit({
+  windowMs: 60 * 1000, limit: 30, standardHeaders: "draft-8", legacyHeaders: false,
+  // Runs after authenticate: rate-limit verified owners, not the shared proxy IP.
+  keyGenerator: (_req, res) => res.locals.user.id,
+  message: { error: "Too many gift link changes. Please try again in a minute." },
+});
+for (const action of ["revoke", "replace"] as const) {
+  router.post(`/orders/:id/gift-link/${action}`, authenticate, giftLimit, async (req, res) => {
+    res.set("Cache-Control", "no-store");
+    const input = (action === "revoke" ? RevokeGiftLinkBody : ReplaceGiftLinkBody).strict().safeParse(req.body);
+    if (!objectId.safeParse(req.params.id).success || !input.success) {
+      res.status(400).json({ error: "Confirm the gift link change and refresh your orders before trying again." });
+      return;
+    }
+    // Never accept an owner from the URL, body, cookie, or a public gift token.
+    const ownedGift = { _id: req.params.id, user: res.locals.user.id, isGift: true };
+    try {
+      const order = await Order.findOneAndUpdate(
+        { ...ownedGift, giftToken: input.data.expectedToken === null ? { $exists: false } : input.data.expectedToken },
+        action === "revoke" ? { $unset: { giftToken: 1 } } : { $set: { giftToken: randomBytes(32).toString("hex") } },
+        { returnDocument: "after", runValidators: true },
+      ).lean();
+      if (!order) {
+        // Same 404 for missing, non-gift, and someone else's order.
+        if (!await Order.exists(ownedGift)) {
+          res.status(404).json({ error: "This gift order could not be found." });
+        } else {
+          res.status(409).json({ error: "This gift link has changed. Refresh your orders and try again." });
+        }
+        return;
+      }
+      res.json(ownerOrder(order));
+    } catch {
+      res.status(503).json({ error: "We couldn't change your gift link. Refresh your orders before trying again." });
+    }
+  });
+}
 class InvalidOrder extends Error {}
 router.post("/orders", authenticate, limit, async (req, res) => {
   res.set("Cache-Control", "no-store");

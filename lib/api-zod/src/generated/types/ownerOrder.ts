@@ -18,5 +18,6 @@ export interface OwnerOrder {
   status: OwnerOrderStatus;
   createdAt: Date;
   isGift: boolean;
-  giftToken?: string;
+  /** @nullable */
+  giftToken?: string | null;
 }

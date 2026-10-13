@@ -32,6 +32,7 @@ const schema = new Schema({
   giftTo: { type: String, maxlength: 80 },
   giftMessage: { type: String, maxlength: 300 },
   giftWrap: { type: String, enum: wraps },
+  // Unset (never store null) to disable access while preserving the sparse unique index.
   giftToken: { type: String, unique: true, sparse: true },
   senderName: String,
 }, { timestamps: { createdAt: true, updatedAt: false }, versionKey: false });
@@ -43,6 +44,6 @@ export function ownerOrder(o: OrderData & { _id: unknown }) {
     items: o.items.map(i => ({ product: String(i.product), name: i.name, price: i.price, quantity: i.quantity })),
     total: o.total, subtotalFils: o.subtotalFils, discountFils: o.discountFils,
     status: o.status, createdAt: o.createdAt, isGift: o.isGift,
-    ...(o.isGift ? { giftToken: o.giftToken } : {}),
+    ...(o.isGift ? { giftToken: o.giftToken ?? null } : {}),
   };
 }

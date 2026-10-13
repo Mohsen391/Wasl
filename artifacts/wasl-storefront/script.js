@@ -657,7 +657,7 @@ function initStore() {
     const discount = Number(order.discountFils) || 0;
     const total = Number.isFinite(order.total) ? order.total : subtotal - discount;
     const token = order.isGift && typeof order.giftToken === "string" ? order.giftToken : "";
-    return `<article class="order-card">
+    return `<article class="order-card" data-order-id="${esc(order.id)}" data-gift-token="${esc(token)}">
       <header class="order-head">
         <div><span class="order-ref">${esc(order.orderReference || "Order")}</span><span class="order-date">${esc(dateText)}</span></div>
         <div class="order-badges">${order.isGift ? `<span class="gift-badge">${icon.gift} Gift</span>` : ""}<span class="status-badge">${esc(order.status || "pending")}</span></div>
@@ -665,9 +665,69 @@ function initStore() {
       <ul class="order-items">${items.map((i) => `<li><span>${esc(i.name)} <small>× ${esc(i.quantity)}</small></span><strong>${formatPrice((Number(i.price) || 0) * (Number(i.quantity) || 0))}</strong></li>`).join("")}</ul>
       <footer class="order-foot">
         <div class="order-totals">${discount ? `<span>Discount −${formatPrice(discount)}</span>` : ""}<span class="order-total">Total <strong>${formatPrice(total)}</strong></span></div>
-        ${token ? `<button class="button button-soft copy-gift" type="button" data-copy-gift="${esc(token)}">${icon.link} Copy gift link</button>` : ""}
+        ${order.isGift ? `<div class="order-gift-controls">
+          <span class="order-gift-status">${token ? "Gift link active" : "Gift link disabled"}</span>
+          <div class="order-gift-actions">
+            ${token ? `<button class="button button-soft copy-gift" type="button" data-copy-gift="${esc(token)}">${icon.link} Copy gift link</button>
+            <button class="button button-soft" type="button" data-gift-action="revoke">Disable gift link</button>` : ""}
+            <button class="button button-soft" type="button" data-gift-action="replace">${token ? "Replace gift link" : "Create new gift link"}</button>
+          </div>
+          <p class="order-gift-feedback" role="status"></p>
+        </div>` : ""}
       </footer>
     </article>`;
+  }
+
+  const giftChanges = new Set();
+  async function changeGiftLink(button) {
+    const card = button.closest("[data-order-id]");
+    const id = card.dataset.orderId;
+    if (!state.token || giftChanges.has(id)) return;
+    const action = button.dataset.giftAction;
+    const expectedToken = card.dataset.giftToken || null;
+    const message = action === "revoke"
+      ? "Disable this gift link? Anyone with the link will lose access. This does not cancel or change your order. You can create a new link later."
+      : expectedToken
+        ? "Replace this gift link? The current link will stop working immediately. You must share the new link with your recipient. Your order will not change."
+        : "Create a new gift link? Anyone you share the new link with can open this gift. Previously disabled links will stay disabled.";
+    if (!window.confirm(message)) return;
+    const session = state.token;
+    giftChanges.add(id);
+    const buttons = [...card.querySelectorAll("button")];
+    buttons.forEach(b => { b.disabled = true; });
+    card.setAttribute("aria-busy", "true");
+    const feedback = card.querySelector(".order-gift-feedback");
+    feedback.textContent = "Updating gift link...";
+    try {
+      const order = await api(`/orders/${encodeURIComponent(id)}/gift-link/${action}`, {
+        method: "POST", auth: true, body: { confirmed: true, expectedToken }
+      });
+      if (session !== state.token) return;
+      if (state.orderReference === order.orderReference) state.orderGiftToken = order.giftToken || null;
+      const text = action === "revoke" ? "Gift link disabled. The old link no longer works." : "New gift link created. Copy and share it; the old link no longer works.";
+      if (card.isConnected) {
+        card.outerHTML = renderOrderCard(order);
+        const updated = [...$("#orders-content").querySelectorAll("[data-order-id]")].find(c => c.dataset.orderId === id);
+        updated.querySelector(".order-gift-feedback").textContent = text;
+        updated.querySelector("button").focus();
+      } else if (currentView().view === "orders") {
+        await loadOrders();
+      }
+      showToast(text, "success");
+      announce(text);
+    } catch (err) {
+      if (session !== state.token) return;
+      feedback.textContent = err.message;
+      showToast(err.message);
+      // A timeout can happen after the server commits; never keep copying a possibly stale link.
+      if (err.status === 409 || err.status === 0 || err.status === 503 || err.status === 404) await loadOrders();
+    } finally {
+      giftChanges.delete(id);
+      if (card.isConnected) {
+        card.removeAttribute("aria-busy");
+        buttons.forEach(b => { b.disabled = false; });
+      }
+    }
   }
 
   async function copyText(text) {
@@ -1092,6 +1152,8 @@ function initStore() {
       logout();
       return;
     }
+    const change = event.target.closest("[data-gift-action]");
+    if (change) { changeGiftLink(change); return; }
     const copy = event.target.closest("[data-copy-gift]");
     if (copy) { copyGift(copy.dataset.copyGift, copy); return; }
     if (event.target.closest("[data-orders-retry]")) loadOrders();

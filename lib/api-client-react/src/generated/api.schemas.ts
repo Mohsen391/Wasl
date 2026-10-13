@@ -88,6 +88,15 @@ export interface PublicGift {
   items: string[];
 }
 
+export interface GiftLinkInput {
+  confirmed: true;
+  /**
+     * @nullable
+     * @pattern ^[a-f0-9]{64}$
+     */
+  expectedToken: string | null;
+}
+
 export type OwnerOrderItemsItem = {
   product: string;
   name: string;
@@ -113,7 +122,8 @@ export interface OwnerOrder {
   status: OwnerOrderStatus;
   createdAt: string;
   isGift: boolean;
-  giftToken?: string;
+  /** @nullable */
+  giftToken?: string | null;
 }
 
 export interface HealthStatus {

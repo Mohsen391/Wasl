@@ -129,6 +129,55 @@ try {
   await Order.updateOne({ _id: other.id }, { $set: { giftToken: nongiftToken } });
   await api(`/gifts/${nongiftToken}`, 404);
   await Order.updateOne({ _id: other.id }, { $unset: { giftToken: 1 } });
+  // Customer-controlled bearer access: owner-only, confirmed, atomic, and private.
+  const linkPath = (id: string, action: string) => `/orders/${id}/gift-link/${action}`;
+  const change = { confirmed: true, expectedToken: gift.giftToken };
+  const beforeLinkChange = await Order.findById(gift.id).select("+delivery").lean();
+  for (const action of ["revoke", "replace"]) {
+    await api(linkPath(gift.id, action), 401, change);
+    await api(linkPath(gift.id, action), 401, change, "malformed");
+    await api(linkPath(gift.id, action), 401, change, sign(a.user.id, -1));
+    await api(linkPath(gift.id, action), 404, change, b.token);
+    await api(linkPath(other.id, action), 404, { confirmed: true, expectedToken: null }, b.token);
+  }
+  await api(linkPath("bad-id", "revoke"), 400, change, a.token);
+  await api(linkPath("ffffffffffffffffffffffff", "revoke"), 404, change, a.token);
+  await api(linkPath(gift.id, "revoke"), 400, { expectedToken: gift.giftToken }, a.token);
+  await api(linkPath(gift.id, "replace"), 400, { ...change, confirmed: false }, a.token);
+  await api(linkPath(gift.id, "replace"), 400, { ...change, expectedToken: "bad-token" }, a.token);
+  // Client-supplied ownership cannot bypass the verified identity.
+  await api(linkPath(gift.id, "replace"), 400, { ...change, userId: a.user.id }, b.token);
+  const replaced = await api(linkPath(gift.id, "replace"), 200, change, a.token);
+  assert.match(replaced.giftToken, /^[a-f0-9]{64}$/);
+  assert.ok(replaced.giftToken !== gift.giftToken);
+  const missing = await api(`/gifts/${gift.giftToken}`, 404);
+  assert.equal(missing.error, "This gift could not be found. Please check the link with its sender.");
+  assert.deepEqual(await api(`/gifts/${replaced.giftToken}`, 200), publicGift);
+  await api(linkPath(gift.id, "revoke"), 409, change, a.token);
+  const disabled = await api(linkPath(gift.id, "revoke"), 200, { confirmed: true, expectedToken: replaced.giftToken }, a.token);
+  assert.equal(disabled.giftToken, null);
+  await api(`/gifts/${replaced.giftToken}`, 404);
+  assert.equal((await api("/orders", 200, undefined, a.token))[0].giftToken, null);
+  const disabledDB = await Order.findById(gift.id).select("+delivery").lean();
+  assert.equal(Object.hasOwn(disabledDB!, "giftToken"), false, "Disabled tokens must be unset for the sparse unique index");
+  const withoutToken = (o: any) => { const { giftToken: _token, ...rest } = o; return rest; };
+  assert.deepEqual(withoutToken(disabledDB), withoutToken(beforeLinkChange), "Link changes must not change order, delivery, or gift contents");
+  assert.equal((await Product.findById(productId).lean())!.stock, before!.stock - 4);
+  const restored = await api(linkPath(gift.id, "replace"), 200, { confirmed: true, expectedToken: null }, a.token);
+  assert.match(restored.giftToken, /^[a-f0-9]{64}$/);
+  assert.ok(restored.giftToken !== replaced.giftToken && restored.giftToken !== gift.giftToken);
+  assert.deepEqual(await api(`/gifts/${restored.giftToken}`, 200), publicGift);
+  // Concurrent changes of one version cannot both succeed (also prevents duplicate retries).
+  const changes = await Promise.all(["revoke", "replace"].map(async action => {
+    const response = await fetch(`${base}${linkPath(gift.id, action)}`, {
+      method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${a.token}` },
+      body: JSON.stringify({ confirmed: true, expectedToken: restored.giftToken }),
+    });
+    return response.status;
+  }));
+  assert.deepEqual(changes.sort(), [200, 409]);
+  checks += 2;
+  await api(`/gifts/${restored.giftToken}`, 404);
   const currentStock = (await Product.findById(productId).lean())!.stock;
   if (currentStock < 99) await api("/orders", 400, { ...input, items: [{ productId, quantity: currentStock + 1 }] }, a.token);
   else {

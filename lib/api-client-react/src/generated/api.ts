@@ -23,6 +23,7 @@ import type {
   ApiError,
   AuthResult,
   CurrentUser200,
+  GiftLinkInput,
   HealthStatus,
   InvalidResponse,
   LoginInput,
@@ -760,5 +761,185 @@ export const usePlaceOrder = <TError = ErrorType<ApiError | UnauthorizedResponse
         TContext
       > => {
       return useMutation(getPlaceOrderMutationOptions(options));
+    }
+
+export const getRevokeGiftLinkUrl = (id: string,) => {
+
+
+
+
+  return `/api/orders/${id}/gift-link/revoke`
+}
+
+/**
+ * Requires explicit confirmation and the last seen token. Ownership comes only from verified Bearer credentials. Does not change the order.
+ * @summary Disable an owned gift link
+ */
+export const revokeGiftLink = async (id: string,
+    giftLinkInput: GiftLinkInput, options?: Parameters<typeof customFetch>[1]): Promise<OwnerOrder> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<OwnerOrder>(getRevokeGiftLinkUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(giftLinkInput)
+  }
+);}
+
+
+
+
+
+export const getRevokeGiftLinkMutationKey = () => ['revokeGiftLink'] as const;
+
+export const getRevokeGiftLinkMutationOptions = <TError = ErrorType<InvalidResponse | UnauthorizedResponse | NotFoundResponse | UnavailableResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof revokeGiftLink>>, TError,RevokeGiftLinkMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof revokeGiftLink>>, TError,RevokeGiftLinkMutationVariables, TContext> => {
+
+const mutationKey = getRevokeGiftLinkMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof revokeGiftLink>>, RevokeGiftLinkMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  revokeGiftLink(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RevokeGiftLinkMutationResult = NonNullable<Awaited<ReturnType<typeof revokeGiftLink>>>
+    export type RevokeGiftLinkMutationBody = BodyType<GiftLinkInput>
+    export type RevokeGiftLinkMutationError = ErrorType<InvalidResponse | UnauthorizedResponse | NotFoundResponse | UnavailableResponse>
+    export type RevokeGiftLinkMutationVariables = {id: string;data: BodyType<GiftLinkInput>}
+
+    /**
+ * @summary Disable an owned gift link
+ */
+export const useRevokeGiftLink = <TError = ErrorType<InvalidResponse | UnauthorizedResponse | NotFoundResponse | UnavailableResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof revokeGiftLink>>, TError,RevokeGiftLinkMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof revokeGiftLink>>,
+        TError,
+        RevokeGiftLinkMutationVariables,
+        TContext
+      > => {
+      return useMutation(getRevokeGiftLinkMutationOptions(options));
+    }
+
+export const getReplaceGiftLinkUrl = (id: string,) => {
+
+
+
+
+  return `/api/orders/${id}/gift-link/replace`
+}
+
+/**
+ * Atomically invalidates the old link and issues a fresh random token. A null expectedToken creates a link for a disabled gift. Requires explicit confirmation.
+ * @summary Replace or create an owned gift link
+ */
+export const replaceGiftLink = async (id: string,
+    giftLinkInput: GiftLinkInput, options?: Parameters<typeof customFetch>[1]): Promise<OwnerOrder> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<OwnerOrder>(getReplaceGiftLinkUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(giftLinkInput)
+  }
+);}
+
+
+
+
+
+export const getReplaceGiftLinkMutationKey = () => ['replaceGiftLink'] as const;
+
+export const getReplaceGiftLinkMutationOptions = <TError = ErrorType<InvalidResponse | UnauthorizedResponse | NotFoundResponse | UnavailableResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof replaceGiftLink>>, TError,ReplaceGiftLinkMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof replaceGiftLink>>, TError,ReplaceGiftLinkMutationVariables, TContext> => {
+
+const mutationKey = getReplaceGiftLinkMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof replaceGiftLink>>, ReplaceGiftLinkMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  replaceGiftLink(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ReplaceGiftLinkMutationResult = NonNullable<Awaited<ReturnType<typeof replaceGiftLink>>>
+    export type ReplaceGiftLinkMutationBody = BodyType<GiftLinkInput>
+    export type ReplaceGiftLinkMutationError = ErrorType<InvalidResponse | UnauthorizedResponse | NotFoundResponse | UnavailableResponse>
+    export type ReplaceGiftLinkMutationVariables = {id: string;data: BodyType<GiftLinkInput>}
+
+    /**
+ * @summary Replace or create an owned gift link
+ */
+export const useReplaceGiftLink = <TError = ErrorType<InvalidResponse | UnauthorizedResponse | NotFoundResponse | UnavailableResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof replaceGiftLink>>, TError,ReplaceGiftLinkMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof replaceGiftLink>>,
+        TError,
+        ReplaceGiftLinkMutationVariables,
+        TContext
+      > => {
+      return useMutation(getReplaceGiftLinkMutationOptions(options));
     }
 

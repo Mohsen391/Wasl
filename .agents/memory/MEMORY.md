@@ -1,2 +1,3 @@
 - [Protected secrets](environment-secrets.md) — runtime availability does not prove a credential was saved securely; avoid raw config diffs.
 - [Patch context](patch-context.md) — repeated calls need unique neighboring lines; indentation alone does not disambiguate patch locations.
+- [Gift-link confirmations](gift-link-confirmations.md) — reject stale confirmations so delayed retries cannot undo a newer access decision.

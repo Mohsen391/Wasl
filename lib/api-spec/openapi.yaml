@@ -158,6 +158,58 @@ paths:
         "401": { $ref: "#/components/responses/Unauthorized" }
         "429": { $ref: "#/components/responses/Invalid" }
         "503": { $ref: "#/components/responses/Unavailable" }
+  /orders/{id}/gift-link/revoke:
+    post:
+      operationId: revokeGiftLink
+      security: [{ bearerAuth: [] }]
+      tags: [orders]
+      summary: Disable an owned gift link
+      description: Requires explicit confirmation and the last seen token. Ownership comes only from verified Bearer credentials. Does not change the order.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, pattern: "^[a-fA-F0-9]{24}$" } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/GiftLinkInput" }
+      responses:
+        "200":
+          description: Updated private order
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OwnerOrder" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Invalid" }
+        "429": { $ref: "#/components/responses/Invalid" }
+        "503": { $ref: "#/components/responses/Unavailable" }
+  /orders/{id}/gift-link/replace:
+    post:
+      operationId: replaceGiftLink
+      security: [{ bearerAuth: [] }]
+      tags: [orders]
+      summary: Replace or create an owned gift link
+      description: Atomically invalidates the old link and issues a fresh random token. A null expectedToken creates a link for a disabled gift. Requires explicit confirmation.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, pattern: "^[a-fA-F0-9]{24}$" } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/GiftLinkInput" }
+      responses:
+        "200":
+          description: Updated private order with new gift link
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OwnerOrder" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Invalid" }
+        "429": { $ref: "#/components/responses/Invalid" }
+        "503": { $ref: "#/components/responses/Unavailable" }
 components:
   securitySchemes:
     bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
@@ -236,6 +288,13 @@ components:
         giftMessage: { type: string, maxLength: 300 }
         giftWrap: { type: string, enum: [Classic, Eid, Birthday, Minimal] }
         items: { type: array, items: { type: string } }
+    GiftLinkInput:
+      type: object
+      additionalProperties: false
+      required: [confirmed, expectedToken]
+      properties:
+        confirmed: { type: boolean, enum: [true] }
+        expectedToken: { type: [string, "null"], pattern: "^[a-f0-9]{64}$" }
     OwnerOrder:
       type: object
       additionalProperties: false
@@ -260,7 +319,7 @@ components:
         status: { type: string, enum: [pending, paid] }
         createdAt: { type: string, format: date-time }
         isGift: { type: boolean }
-        giftToken: { type: string }
+        giftToken: { type: [string, "null"] }
     HealthStatus:
       type: object
       properties:

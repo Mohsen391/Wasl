@@ -11,6 +11,7 @@ export * from './authResult';
 export * from './currentUser200';
 export * from './deliveryDetails';
 export * from './deliveryDetailsGovernorate';
+export * from './giftLinkInput';
 export * from './healthStatus';
 export * from './invalidResponse';
 export * from './loginInput';
