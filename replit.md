@@ -5,12 +5,16 @@ Responsive Kuwaiti tech-accessories storefront with accounts, private pending or
 ## Run & Operate
 
 - Managed workflows run the API and storefront with their configured `PORT` and `BASE_PATH`.
+- Install imported dependencies with `pnpm install --frozen-lockfile`.
+- Start `artifacts/api-server: API Server` and `artifacts/wasl-storefront: web` in Workflows. The storefront is at `/`, the API health check is `/api/healthz`, and the database catalog is `/api/products`.
+- The optional `artifacts/mockup-sandbox: Component Preview Server` workflow serves the design canvas; it is not required by the store.
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `npm run seed` — insert the eight samples only when the development MongoDB product collection is empty; reruns preserve existing products.
+- `pnpm run seed` — insert the eight samples only when the development MongoDB product collection is empty; reruns preserve existing products.
 - `pnpm --filter @workspace/api-server run test:store` — development API integration checks; creates two synthetic accounts/orders, cleans its own data, and restores reserved stock.
 - Required protected Secrets: `MONGODB_URI` (development Atlas database) and `JWT_SECRET`. Never place credentials in ordinary configuration/environment entries, files, or logs.
+- The commercial uses managed App Storage settings (`PUBLIC_OBJECT_SEARCH_PATHS` and related bucket settings). The public storage prefix must contain `wasl/commercial.mp4` and `wasl/commercial-poster.jpg`; source uploads are in `attached_assets/`.
 
 ## Stack
 
